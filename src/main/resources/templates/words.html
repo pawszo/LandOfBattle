@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+
+    <!-- Bootstrap CSS -->
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+
+    <title>WORDS</title>
+</head>
+<body style="background-color: #b28f6b">
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+            <a class="nav-link" th:href="@{'/home'}">LandOfBattle.pl</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{'/home'}">HOME</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{'/highscores'}">HIGHSCORES</a>
+        </li>
+
+        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+            <a class="nav-link" th:href="@{'/admin/users'}">USERS</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+            <a class="nav-link" th:href="@{'/admin/roles'}">ROLES</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+            <a class="nav-link" th:href="@{'/admin/words'}">WORDS</a>
+        </li>
+
+    </ul>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item" id="helloUser-nav" sec:authorize="isAuthenticated()">
+            <a class="nav-link disabled">
+                Hello, <span sec:authentication="name"></span>
+            </a>
+        </li>
+        <li class="nav-item" id="register-nav" sec:authorize="isAnonymous()">
+            <a class="nav-link" th:href="@{'/register'}">SIGN UP</a>
+        </li>
+        <li class="nav-item" id="login-nav" sec:authorize="isAnonymous()">
+            <a class="nav-link" th:href="@{'/signin'}">SIGN IN</a>
+        </li>
+        <li class="nav-item" id="logout-nav2" sec:authorize="isAuthenticated()">
+            <a class="nav-link" method="post" th:href="@{'/logout'}">
+                SIGN OUT
+            </a>
+        </li>
+    </ul>
+</nav>
+<br>
+<div class="container">
+    <div class="row justify-content-center">
+        <table class="table table-primary">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Words</th>
+                <th scope="col">Difficulty</th>
+                <th scope="col">Language</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <form class="col-sm-6" th:action="@{/admin/words}" th:method="post" th:object="${wordSetDTO}">
+                <tr>
+
+                    <td colspan="2"><input class="form-control" id="wordsInput" name="wordsInput"
+                                           placeholder="put some text"
+                                           th:field="*{words}" type="text"></td>
+                    <td>AUTOMATIC</td>
+                    <td><input class="form-control" id="languageInput" name="languageInput"
+                               placeholder="Eg. EN, DE" th:field="*{language}" type="text">
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-lg btn-block" type="submit">Add</button>
+                    </td>
+
+                </tr>
+            </form>
+            <tr th:each="word : ${wordList}">
+                <td th:text="${word.id}">ID</td>
+                <td th:text="${word.name}">Words</td>
+                <td th:text="${word.difficulty}">Difficulty</td>
+                <td th:text="${word.language}">Language</td>
+                <form th:action="@{'/admin/words/' + ${word.id}}" th:method="post">
+                    <td>
+                        <button class="btn btn-primary btn-lg btn-block" type="submit">Delete</button>
+                    </td>
+                </form>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<footer class="navbar fixed-bottom justify-content-center navbar-dark bg-dark">
+    <!-- Footer Elements -->
+
+    <!-- Copyright -->
+    <div class="footer-copyright text-center py-3" style="color: bisque">© 2020 Copyright: <a th:href="@{'/author'}">Paweł
+        Szołtysek</a>
+        <a style="margin-left : 10px; margin-right: 10px" th:href="@{'/about'}">About this page</a>
+        <a th:href="@{'/terms'}">Terms and Policy</a>
+        <i class="fab fa-linkedin"></i>
+    </div>
+    <!-- Copyright -->
+
+</footer>
+
+<!-- Optional JavaScript -->
+<!--<script type="text/javascript">
+
+</script>
+-->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script crossorigin="anonymous"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

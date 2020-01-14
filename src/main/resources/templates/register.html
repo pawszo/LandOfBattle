@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+
+    <!-- Bootstrap CSS -->
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+
+</head>
+<body style="background-color: #b28f6b">
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+            <a class="nav-link" th:href="@{'/home'}">LandOfBattle.pl</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{'/home'}">HOME</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{'/highscores'}">HIGHSCORES</a>
+        </li>
+
+        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+            <a class="nav-link" th:href="@{'/admin/users'}">USERS</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+            <a class="nav-link" th:href="@{'/admin/roles'}">ROLES</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+            <a class="nav-link" th:href="@{'/admin/words'}">WORDS</a>
+        </li>
+
+    </ul>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item" id="helloUser-nav" sec:authorize="isAuthenticated()">
+            <a class="nav-link disabled">
+                Hello, <span sec:authentication="name"></span>
+            </a>
+        </li>
+        <li class="nav-item" id="register-nav" sec:authorize="isAnonymous()">
+            <a class="nav-link" th:href="@{'/register'}">SIGN UP</a>
+        </li>
+        <li class="nav-item" id="login-nav" sec:authorize="isAnonymous()">
+            <a class="nav-link" th:href="@{'/signin'}">SIGN IN</a>
+        </li>
+        <li class="nav-item" id="logout-nav2" sec:authorize="isAuthenticated()">
+            <a class="nav-link" method="post" th:href="@{'/logout'}">
+                SIGN OUT
+            </a>
+        </li>
+    </ul>
+</nav>
+<br>
+<div class="container jumbotron col-sm-4">
+    <h1 style="text-align: center"><strong>REGISTER</strong></h1>
+    <div class="row justify-content-center">
+        <form method="post" th:action="@{/register}" th:object="${userDTO}">
+
+            <label for="nickInputGroup">Nickname:</label>
+            <div class="input-group" id="nickInputGroup">
+                <input class="form-control" id="nickname" name="nickname"
+                       placeholder="at least 3 alphanumeric characters" th:field="*{nickname}" type="text">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email address:</label>
+                <input class="form-control" id="email" name="email" placeholder="eg. user@mail.com" th:field="*{email}"
+                       type="email">
+            </div>
+            <div class="form-group">
+                <label for="password1">Password:</label>
+                <input class="form-control" id="password1" name="password"
+                       placeholder="at least 8 characters containing letters and digits" th:field="*{password}"
+                       type="password">
+            </div>
+            <div class="form-group">
+                <label for="password2">Confirm password:</label>
+                <input class="form-control" id="password2" placeholder="phrases must match" type="password">
+            </div>
+
+            <div class="checkbox">
+                <input id="acceptCookies" name="checkbox" type="checkbox" value="check"/> I have read and agree to <a
+                    th:href="@{/terms}">the Terms and Conditions and Privacy Policy</a>
+            </div>
+            <br>
+            <button class="btn btn-primary btn-lg btn-block" disabled id="submitButton" type="submit">
+                Register
+            </button>
+            <hr>
+            <div style="text-align: center"><a th:href="@{'/login'}">Already registered?</a></div>
+        </form>
+
+
+    </div>
+</div>
+<footer class="navbar fixed-bottom justify-content-center navbar-dark bg-dark">
+    <!-- Footer Elements -->
+
+    <!-- Copyright -->
+    <div class="footer-copyright text-center py-3" style="color: bisque">© 2020 Copyright: <a th:href="@{'/author'}">Paweł
+        Szołtysek</a>
+        <a style="margin-left : 10px; margin-right: 10px" th:href="@{'/about'}">About this page</a>
+        <a th:href="@{'/terms'}">Terms and Policy</a>
+        <i class="fab fa-linkedin"></i>
+    </div>
+    <!-- Copyright -->
+
+</footer>
+
+<script crossorigin="anonymous"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<!-- Optional JavaScript -->
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+    var hasScore = /*[[${hasScore}]]*/ "test";
+    var isUserDetailUnique = /*[[@{/api/v1/phrase}]]*/ "test";
+    var badgeOK = '<div class="badge badge-pill badge-success" style="font-size: 16px;">♫</div>';
+    var badgeBAD = '<div class="badge badge-pill badge-danger" style="font-size: 16px;">Input has errors</div>';
+
+    var emailPattern = /\w+@\w+\.\w{1,10}/i;
+    var passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
+    /*]]>*/
+
+    function checkFields() {
+        return (checkNick() && checkEmail() && checkPassword() && checkPasswordConf());
+    }
+
+    async function isUnique(phrase, type) {
+        let url = isUserDetailUnique;
+        const settings = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({"phrase": phrase, "type": type})
+        };
+        let response = await fetch(url, settings);
+        let data = response.json();
+        return data;
+    }
+
+    async function checkNick() {
+
+        let nickfield = document.getElementById("nickname");
+        let nick = document.getElementById("nickname").value.toLowerCase();
+        if (!/\w{3,20}/i.test(nick) && nick.length <= 20 && nick.length > 0) {
+            nickfield.title = "Nickname may consist of 3-20 alphanumeric characters.";
+            nickfield.style.backgroundColor = "#FF837D";
+            return false;
+        } else if (/\W+/i.test(nick)) {
+            nickfield.title = "Only alphanumeric characters are allowed!";
+            nickfield.style.backgroundColor = "#FF837D";
+            return false;
+        } else {
+            let dbResult = await isUnique(nick, "nick").then(r => {
+                return r;
+            });
+            if (dbResult) {
+                nickfield.title = "OK!";
+                nickfield.style.backgroundColor = "#94ffbc";
+                return true;
+            } else {
+                nickfield.title = "Nickname is not unique";
+                nickfield.style.backgroundColor = "#FF837D";
+                return false;
+            }
+        }
+    }
+
+    async function checkEmail() {
+        let emailField = document.getElementById('email');
+        if (emailPattern.test(emailField.value) && emailField.value.length < 40) {
+            let dbResult = await isUnique(emailField.value, "nick").then(r => {
+                return r;
+            });
+            if (dbResult) {
+                emailField.title = "OK!";
+                emailField.style.backgroundColor = "#94ffbc";
+                return true;
+            } else {
+                emailField.title = "There is a user with this email already. Use option \"Lost password?\"";
+                emailField.style.backgroundColor = "#FF837D";
+                return false;
+            }
+        } else {
+            emailField.title = "Wrong format";
+            document.getElementById("email").style.backgroundColor = "#FF837D";
+            return false;
+        }
+    }
+
+    function checkPassword() {
+        checkPasswordConf();
+        let passwordInput = document.getElementById('password1').value;
+        if (passwordPattern.test(passwordInput)) {
+            document.getElementById("password1").style.backgroundColor = "#94ffbc";
+            return true;
+        } else {
+            document.getElementById("password1").style.backgroundColor = "#FF837D";
+            return false;
+
+        }
+    }
+
+    function checkPasswordConf() {
+        let passwordConfInput = document.getElementById('password2').value;
+        if (passwordConfInput.length > 1 && passwordConfInput === document.getElementById('password1').value) {
+            document.getElementById("password2").style.backgroundColor = "#94ffbc";
+            return true;
+        } else {
+            document.getElementById("password2").style.backgroundColor = "#FF837D";
+            return false;
+
+        }
+    }
+
+    setInterval(function () {
+        let nick = document.getElementById("nickname").value.toLowerCase();
+        let email = document.getElementById('email').value;
+        let password = document.getElementById('password1').value;
+        let passwordConf = document.getElementById('password2').value;
+        if (("" + nick + email + password + passwordConf).length > 0) {
+            if (checkFields() && document.getElementById('acceptCookies').checked) {
+                document.getElementById("submitButton").disabled = false;
+            } else {
+                document.getElementById("submitButton").disabled = true;
+            }
+        }
+    }, 300);
+</script>
+
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+
+</body>
+</html>

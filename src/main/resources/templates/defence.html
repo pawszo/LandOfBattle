@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <!--<meta name="_csrf" content="${_csrf.token}"/>
+    default header name is X-CSRF-TOKEN
+    <meta name="_csrf_header" content="${_csrf.headerName}"/>-->
+    <!-- Bootstrap CSS -->
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+
+    <title>Castle defence</title>
+</head>
+<body style="background-color: #b28f6b">
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+            <a class="nav-link" th:href="@{'/home'}">LandOfBattle.pl</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{'/home'}">HOME</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{'/highscores'}">HIGHSCORES</a>
+        </li>
+
+        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+            <a class="nav-link" th:href="@{'/admin/users'}">USERS</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+            <a class="nav-link" th:href="@{'/admin/roles'}">ROLES</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+            <a class="nav-link" th:href="@{'/admin/words'}">WORDS</a>
+        </li>
+
+    </ul>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item" id="helloUser-nav" sec:authorize="isAuthenticated()">
+            <a class="nav-link disabled">
+                Hello, <span sec:authentication="name"></span>
+            </a>
+        </li>
+        <li class="nav-item" id="register-nav" sec:authorize="isAnonymous()">
+            <a class="nav-link" th:href="@{'/register'}">SIGN UP</a>
+        </li>
+        <li class="nav-item" id="login-nav" sec:authorize="isAnonymous()">
+            <a class="nav-link" th:href="@{'/signin'}">SIGN IN</a>
+        </li>
+        <li class="nav-item" id="logout-nav2" sec:authorize="isAuthenticated()">
+            <a class="nav-link" method="post" th:href="@{'/logout'}">
+                SIGN OUT
+            </a>
+        </li>
+    </ul>
+</nav>
+<div class="container-fluid">
+    <div class="row content">
+        <nav class="col-sm-3 sidenav border border-dark bg-light shadow-lg" style="height: 100vh">
+            <div class="navbar-nav" style="text-align: center">
+                <br>
+                <h4><strong>TOP 15 - CASTLE DEFENCE</strong></h4>
+                <br>
+                <div id="sortSelection" onclick="updateSorting()">
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input checked class="custom-control-input" id="pointsSort" name="sorting" type="radio">
+                        <label class="custom-control-label" for="pointsSort">Sort By Points</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input class="custom-control-input" id="timeSort" name="sorting" type="radio">
+                        <label class="custom-control-label" for="timeSort">Sort By Time</label>
+                    </div>
+                </div>
+                <table class="table" id="shooterScores">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Nickname</th>
+                        <th scope="col">Points</th>
+                        <th scope="col">Time</th>
+                    </tr>
+                    </thead>
+                    <tbody id="highscoreRecords">
+                    </tbody>
+                </table>
+            </div>
+        </nav>
+        <div class="container col-sm-9"><br>
+            <div class="row justify-content-md-center" id="instructions">
+                <div class="jumbotron">
+                    <h2 class="display-4">Instructions:</h2><br>
+                    <p class="lead">Defent your castle against the horde. Grab units from the shopping panel and place
+                        on the castle to buy them.</p>
+                    <br>
+                    <p class="lead">STEERING: </p>
+                    <p>Buttons 1, 2, 3, 4 - select team saved in the slot.</p>
+                    <p>ALT + Buttons 1, 2, 3, 4 - save currently active team into the slot.</p>
+                    <p>Left Mouse Button - unit selection, shooting</p>
+                    <p>ALT + Left Mouse Button - grouping units into teams</p>
+
+                    <hr>
+                    <button class="btn btn-primary btn-block" onclick="startGame()" type="button">BEGIN
+                    </button>
+                </div>
+            </div>
+            <div id="playScreen" style="display: none">
+                <div class="container-fluid">
+                    <div class="row justify-content-md-center">
+                        <canvas id="displayCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+                <div class="row justify-content-md-center">
+                    <br>
+                    <div class="jumbotron" id="endScoreTable" style="display: none; text-align: center">
+                        <h1 class="display-4">Well done!</h1>
+                        <p class="lead html-editor-align-center">Points: <span id="endPoints"></span></p>
+                        <p class="lead html-editor-align-center">Time: <span id="endTime"></span></p>
+                        <p class="lead html-editor-align-center">Max level: <span id="endLevel"></span></p>
+                        <hr>
+                        <button class="btn btn-primary" onclick="submitScore()">SUBMIT SCORE</button>
+                    </div>
+                    <div class="container" id="endScreen" style="display: none">
+                        <div>
+                            <a class="btn btn-secondary btn-lg btn-block" href="/starter" th:href="@{'/defence'}">PLAY
+                                AGAIN</a>
+                            <br>
+                            <a class="btn btn-primary btn-lg btn-block" id="gotoregister" th:href="@{'/home'}">HOME</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer class="navbar fixed-bottom justify-content-center navbar-dark bg-dark">
+    <!-- Footer Elements -->
+
+    <!-- Copyright -->
+    <div class="footer-copyright text-center py-3" style="color: bisque">© 2020 Copyright: <a th:href="@{'/author'}">Paweł
+        Szołtysek</a>
+        <a style="margin-left : 10px; margin-right: 10px" th:href="@{'/about'}">About this page</a>
+        <a th:href="@{'/terms'}">Terms and Policy</a>
+        <i class="fab fa-linkedin"></i>
+    </div>
+    <!-- Copyright -->
+
+</footer>
+
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script crossorigin="anonymous"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+<!-- Optional JavaScript -->
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+
+    var words = ["asdasd", "dupa", "gowno", "asdmk", "pods"];
+    var username = /*[[${username}]]*/ "test";
+    var game = /*[[${createScoreDTO.game}]]*/ "test";
+    var createScoreUrl = /*[[@{/scores}]]*/ "test";
+    var highscoreUrl = /*[[@{/api/v1/highscores/}]]*/ "test";
+    var isNickAvailableUrl = /*[[@{/api/v1/nicknames/}]]*/ "test";
+    var registerUrl = /*[[@{/register}]]*/ "test";
+    var postScoreUrl = /*[[@{/api/v1/scores}]]*/ "test";
+    var scoreID;
+    var points = 0;
+    var shop;
+    var screenWidth = 1000;
+    var screenHeight = 800;
+    var bulletSystem;
+    var time = 0;
+    var killedBy = "";
+    var castle;
+    var enemies = ["dupa", "asdsad", "asdasd", "asdajndkn"];
+    var spawner;
+    var enemySystem;
+    var timer = setInterval(tick, 1000);
+    var itemPool;
+    var arsenal;
+    var drag = false;
+    var phrase;
+    var aiming = false;
+    var activeTowers = [];
+    var effects;
+    var teams = new Array(4);
+    var altDown = false;
+    var gameover = false;
+    var level = 1;
+    var bloodSystem;
+    var cursorOnActiveElement = false;
+
+
+    /*]]>*/
+
+    updateSorting = async () => {
+        let sort = document.getElementById("pointsSort").checked ? "points" : "time";
+        console.log("sort = " + sort);
+        console.log("game = " + game);
+        let amount = "16";
+
+        const settings = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "sort": sort,
+                "amount": amount
+            })
+        };
+        try {
+            let response = await fetch(highscoreUrl + game, settings);
+            let data = await response.json();
+            let index = 1;
+            document.getElementById("highscoreRecords").innerHTML = "";
+            for (let record of data) {
+                let row = '<tr><td>' + index++ + '</td><td>' + record.nickname
+                    + '</td><td>' + record.points + '</td><td>' + record.time + '</td></tr>';
+                document.getElementById("highscoreRecords").innerHTML += row;
+            }
+        } catch (e) {
+            console.log(e);
+            return e;
+        }
+
+    };
+
+    async function isNicknameAvailable() {
+        let nickField = document.getElementById("nickname");
+        let phrase = document.getElementById("nickname").value;
+        if (/\W/i.test(phrase)) {
+            nickField.style.backgroundColor = "#FF837D";
+            document.getElementById("nickInputGroup").title = "Only alphanumeric characters are allowed!";
+            return false;
+        } else {
+            if (/\w{3,20}/i.test(phrase)) {
+
+                let response = await fetch(isNickAvailableUrl.toString() + phrase);
+                let data = await response.json();
+                console.log('isNickAvailable: ' + data);
+                if (data == true) {
+                    nickField.style.backgroundColor = "#94ffbc";
+                    document.getElementById("nickInputGroup").title = "OK!";
+                } else {
+                    console.log('isNickAvailable: data =  ' + data);
+                    nickField.style.backgroundColor = "#FF837D";
+                    document.getElementById("nickInputGroup").title = "This nickname already exists!";
+                }
+                return true;
+            } else {
+                nickField.style.backgroundColor = "#FF837D";
+                document.getElementById("nickInputGroup").title = "Nickname may consist of 3-20 alphanumeric characters.";
+            }
+        }
+    }
+
+    submitScore = async () => {
+        const settings = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "time": time,
+                "points": points,
+                "maxLevel": level,
+                "nickname": username,
+                "game": game
+            })
+        };
+        try {
+            let response = await fetch(postScoreUrl, settings);
+            let data = await response.json();
+            showEndScreen();
+            await updateSorting();
+            return data;
+        } catch (e) {
+            console.log(e);
+            return e;
+        }
+    };
+
+    function showEndScreen() {
+        document.getElementById("endScreen").style.display = "inline";
+
+    }
+
+    function finish() {
+        document.getElementById("endScoreTable").style.display = "inline";
+        document.getElementById("endPoints").innerHTML = points;
+        document.getElementById("endTime").innerHTML = time;
+        document.getElementById("endLevel").innerHTML = level;
+        clearInterval(timer);
+        document.getElementById("playScreen").style.display = "none";
+    }
+
+    function itemPool() {
+        this.items = [new ShopItem(143, 140, "https://i.ibb.co/BTb7bLR/trebuchet0.gif", "trebuchet", "fire", 30, 10),
+            new ShopItem(46, 46, "https://i.ibb.co/tZdjtkZ/archer0.gif", "archer", "ice", 10, 50)];
+        this.addItem = function (item) {
+            this.items.push(item);
+        };
+        this.getRandom = function () {
+            return this.items.pop();
+        }
+    }
+
+    function startGame() {
+        document.getElementById("instructions").style = "display: none";
+        document.getElementById("playScreen").style = "display: inline";
+        bloodSystem = new BloodSystem();
+        castle = new castle(200, screenHeight, 160, 0, "https://i.ibb.co/T0cpVsV/castle.png");
+        shop = new Shop(160, screenHeight, 0, 0);
+        arsenal = new Arsenal();
+        effects = new Effects();
+        itemPool = new itemPool();
+
+        bulletSystem = new bulletSystem();
+        spawner = new Spawner();
+        spawner.start();
+        enemySystem = new enemySystem(3000);
+        gameArea.start();
+        enemySystem.start();
+        let slotIndex = 1;
+        for (let slot of shop.slots) {
+            shop.setItem(itemPool.getRandom(), slot);
+
+        }
+        setInterval(function () {
+            attack();
+        }, 1000);
+
+
+        window.addEventListener("keydown", function (event) {
+
+            //TAB
+            if (event.keyCode == 9) {
+
+                //event.preventDefault();
+            }
+            if (event.keyCode == 18) {
+                altDown = true;
+                event.preventDefault();
+            }
+            //1
+            if (event.keyCode == 49) {
+                if (altDown) {
+                    teams[0] = activeTowers;
+                } else {
+                    console.log("activeTowers = team1");
+                    activeTowers = teams[0];
+                }
+            }
+            if (event.keyCode == 50) {
+                if (altDown) {
+                    teams[1] = activeTowers;
+                } else {
+                    console.log("activeTowers = team2");
+                    activeTowers = teams[1];
+                }
+            }
+            if (event.keyCode == 51) {
+                if (altDown) {
+                    teams[2] = activeTowers;
+                } else {
+                    activeTowers = teams[2];
+                }
+            }
+            if (event.keyCode == 52) {
+                if (altDown) {
+                    teams[3] = activeTowers;
+                } else {
+                    activeTowers = teams[3];
+                }
+            }
+        });
+
+        window.addEventListener("keyup", function (e) {
+            altDown = false;
+        }, false);
+        gameArea.canvas.addEventListener("mousedown", mouseDown, false);
+        gameArea.canvas.addEventListener("click", mouseClick, false);
+        gameArea.canvas.addEventListener("mousemove", mouseMove, false);
+
+    }
+
+    function mouseClick(e) {
+        console.log("CLICK");
+        let x = e.offsetX;
+        let y = e.offsetY;
+        for (item of arsenal.towers) {
+            if ((x >= item.rect.x && x <= item.rect.x + item.rect.width) && (y >= item.rect.y && y <= item.rect.y + item.rect.width)) {
+                if (!altDown || activeTowers == null) {
+                    activeTowers = [];
+                }
+                activeTowers.push(item);
+
+            } else if (e.offsetX > castle.width + shop.width) {
+                arsenal.shoot(e.offsetX, e.offsetY);
+            }
+        }
+    }
+
+    function mouseDown(e) {
+        let x = e.offsetX;
+        let y = e.offsetY;
+        for (item of shop.inventory) {
+            if ((x >= item.x && x <= item.x + item.width) && (y >= item.y && y <= item.y + item.width)) {
+                item.stickToHand = true;
+                drag = true;
+            }
+
+        }
+
+        if (drag == true) {
+            window.addEventListener("mousemove", mouseMove, false);
+        }
+        gameArea.canvas.removeEventListener("mousedown", mouseDown, false);
+        window.addEventListener("mouseup", mouseUp, false);
+    }
+
+    function mouseMove(e) {
+        let mouseOnActive = false;
+        for (item of shop.inventory) {
+            if (e.offsetX >= item.x && e.offsetX <= item.x + item.width && e.offsetY >= item.y && e.offsetY <= item.y + item.height) {
+                mouseOnActive = true;
+            }
+            if (item.stickToHand) {
+                item.x = e.offsetX - item.width / 2;// + offsetX;
+                item.y = e.offsetY - item.height / 2;// + offsetY;
+            }
+        }
+        if (mouseOnActive) {
+            cursorOnActiveElement = true;
+        } else {
+            cursorOnActiveElement = false;
+        }
+        if (e.offsetX > castle.width + castle.x) {
+            arsenal.cursorImg.src = "images/target.png";
+        }
+
+        arsenal.aim.x = e.offsetX - arsenal.aim.width / 2;
+        arsenal.aim.y = e.offsetY - arsenal.aim.height / 2;
+
+
+    }
+
+    function mouseUp(e) {
+        gameArea.canvas.addEventListener("mousedown", mouseDown, false);
+        window.removeEventListener("mouseup", mouseUp, false);
+        if (drag) {
+            drag = false;
+            window.removeEventListener("mousemove", mouseMove, false);
+            for (item of shop.inventory) {
+                if (item.stickToHand) {
+                    item.stickToHand = false;
+                    if ((item.x + 20 >= castle.x && item.x + item.width - 20 <= castle.x + castle.width)
+                        && (item.y - 20 >= castle.y && item.y - 20 + item.height <= castle.y + castle.height)
+                        && (castle.money >= item.price)
+                    ) {
+                        item.buy(item.price);
+                    } else {
+
+                        item.setLocation(item.slot);
+                    }
+                }
+            }
+        }
+
+        gameArea.canvas.addEventListener("mousedown", mouseDown, false);
+    }
+
+    function updateGameArea() {
+        if (!gameover) {
+            gameArea.clear();
+            castle.update();
+            bloodSystem.update();
+            enemySystem.update();
+            shop.update();
+            arsenal.update();
+            bulletSystem.update();
+            effects.update();
+            level = Math.ceil(points / 10);
+            if (castle.health <= 0) {
+                finish();
+            }
+        }
+
+
+    }
+
+    /*currently owned towers container */
+    function Arsenal() {
+        this.aim = new Rect(750, 750, 64, 64);
+        this.towers = [];
+        this.cursorImg = new Image();
+
+        this.addTower = function (tower) {
+            this.towers.push(tower);
+        };
+        this.update = function () {
+            if (activeTowers != null && activeTowers.length > 0) {
+                for (let activeTower of activeTowers) {
+                    activeTower.printSelection();
+                }
+            }
+
+            let ctx = gameArea.context;
+            if (drag) {
+                this.cursorImg.src = "https://i.ibb.co/T0vzmq6/closed-Palm.gif";
+            } else if (cursorOnActiveElement) {
+                this.cursorImg.src = "https://i.ibb.co/ch8WnbB/openPalm.gif";
+            } else {
+
+                this.cursorImg.src = "https://i.ibb.co/znfzCDD/target.png";
+            }
+            ctx.drawImage(this.cursorImg, this.aim.x, this.aim.y, this.cursorImg.width, this.cursorImg.height);
+
+            for (let tower of this.towers) {
+                tower.update();
+            }
+
+        };
+        this.shoot = function (x, y) {
+            for (let tower of activeTowers) {
+                if (tower.isReady) {
+                    tower.shoot(x, y);
+                } else {
+                    console.log("TOWER NOT READY");
+                }
+
+            }
+        }
+
+    }
+
+    function Rect(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
+    function Tower(name, image, power, rectangle, dmg) {
+        this.dmg = dmg;
+        this.rect = rectangle;
+        this.name = name;
+        this.image = image;
+        this.timeout = 3000;
+        this.isReady = true;
+        this.animation = getAnimationArray(this.name);
+        this.power = power;
+        this.selectionImg = new Image();
+        this.selectionImg.src = "https://i.ibb.co/Zg26dKd/selection.gif";
+        this.shoot = function (x, y) {
+
+
+            this.isReady = false;
+            let rectangle = new Rect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
+            let bullet = new Bullet(16, 16, rectangle.x, rectangle.y, 30, new Vec2(x, y), this.name, this.dmg);
+            setTimeout(function () {
+                bulletSystem.addBullet(bullet);
+            }, 300);
+            animate(this);
+
+        };
+        this.printSelection = function () {
+            let ctx = gameArea.context;
+            if (this.name == "trebuchet") {
+                ctx.drawImage(this.selectionImg, this.rect.x + 25, this.rect.y + 25, 100, 100);
+            } else {
+                ctx.drawImage(this.selectionImg, this.rect.x - 15, this.rect.y - 50, 100, 100);
+            }
+        };
+        this.update = function () {
+            let ctx = gameArea.context;
+            ctx.fillStyle = "white";
+            ctx.font = "normal normal bolder 24px verdana";
+            ctx.drawImage(this.image, this.rect.x + 20, this.rect.y - 25, this.rect.width, this.rect.height);
+        }
+    }
+
+    function getAnimationArray(name) {
+        if (name == "trebuchet") {
+            let array = new Array(13);
+            for (let i = 0; i < array.length; i++) {
+                // = new Image();
+                //img.src = "images/trebuchet"+i+".gif";
+                //array[i] = img;
+                array[i] = new Image();
+            }
+            array[0].src = "https://i.ibb.co/BTb7bLR/trebuchet0.gif";
+            array[1].src = "https://i.ibb.co/T88T4hP/trebuchet1.gif";
+            array[2].src = "https://i.ibb.co/MZ0SvfS/trebuchet2.gif";
+            array[3].src = "https://i.ibb.co/mRvR32f/trebuchet3.gif";
+            array[4].src = "https://i.ibb.co/Pm0FZMP/trebuchet4.gif";
+            array[5].src = "https://i.ibb.co/mcr1y0m/trebuchet5.gif";
+            array[6].src = "https://i.ibb.co/4Vpd8nR/trebuchet6.gif";
+            array[7].src = "https://i.ibb.co/gd5T3dd/trebuchet7.gif";
+            array[8].src = "https://i.ibb.co/k1jP2cn/trebuchet8.gif";
+            array[9].src = "https://i.ibb.co/Y3ScQrZ/trebuchet9.gif";
+            array[10].src = "https://i.ibb.co/mSfMRSy/trebuchet10.gif";
+            array[11].src = "https://i.ibb.co/Fs0nyNv/trebuchet11.gif";
+            array[12].src = "https://i.ibb.co/9wKDLVp/trebuchet12.gif";
+            return array;
+        } else if (name == "enemy") {
+            let array = new Array(10);
+            for (let i = 0; i < array.length; i++) {
+                array[i] = new Image();
+                // let img = new Image();
+                // img.src = "images/runner"+i+".png";
+                // array[i] = img;
+            }
+            array[0].src = "https://i.ibb.co/0cwx9xh/runner0.png";
+            array[1].src = "https://i.ibb.co/cxdxDDc/runner1.png";
+            array[2].src = "https://i.ibb.co/rxjJN60/runner2.png";
+            array[3].src = "https://i.ibb.co/Xydb1sK/runner3.png";
+            array[4].src = "https://i.ibb.co/NYF1g9Z/runner4.png";
+            array[5].src = "https://i.ibb.co/F8ZgDBD/runner5.png";
+            array[6].src = "https://i.ibb.co/MkwcnjK/runner6.png";
+            array[7].src = "https://i.ibb.co/7XQPd33/runner7.png";
+            array[8].src = "https://i.ibb.co/Km9GbGH/runner8.png";
+            array[9].src = "https://i.ibb.co/nc1Jxvq/runner9.png";
+            return array;
+        } else if (name == "archer") {
+            let array = new Array(4);
+            for (let i = 0; i < array.length; i++) {
+                //let img = new Image();
+                //img.src = "images/archer"+i+".gif";
+                //array[i] = img;
+                array[i] = new Image();
+            }
+            array[0].src = "https://i.ibb.co/5B3JVmM/archer0.gif";
+            array[1].src = "https://i.ibb.co/89zTYVN/archer1.gif";
+            array[2].src = "https://i.ibb.co/dDRCfTD/archer2.gif";
+            array[3].src = "https://i.ibb.co/St7sQSY/archer3.gif";
+            return array;
+        } else if (name == "explosion") {
+            let array = new Array(5);
+            for (let i = 0; i < array.length; i++) {
+                // let img = new Image();
+                // img.src = "images/explosion"+i+".gif";
+                // array[i] = img;
+                array[i] = new Image();
+            }
+            array[0].src = "https://i.ibb.co/26q8xMm/explosion0.gif";
+            array[1].src = "https://i.ibb.co/DgrmK1S/explosion1.gif";
+            array[2].src = "https://i.ibb.co/0QMK5vp/explosion2.gif";
+            array[3].src = "https://i.ibb.co/xXzwv6r/explosion3.gif";
+            array[4].src = "https://i.ibb.co/3pb4fDm/explosion4.gif";
+            return array;
+
+        } else return null;
+    }
+
+    function ShopItem(width, height, image, name, power, price, dmg) {
+        this.dmg = dmg;
+        this.power = power;
+        this.price = price;
+        this.width = width;
+        this.height = height;
+        this.image = new Image();
+        this.image.src = image;
+        this.name = name;
+        this.slot = null;
+        this.stickToHand = false;
+        this.buy = function (price) {
+            castle.money -= price;
+            let rect = new Rect(this.x, this.y, this.width, this.height);
+            let tower = new Tower(this.name, this.image, this.power, rect, this.dmg);
+            arsenal.addTower(tower);
+            this.setLocation(this.slot);
+            // if (activeTowers.length < 1) {
+            activeTowers.push(this);
+            /// }
+
+        };
+        this.setLocation = function (vec2) {
+            this.x = vec2.x - width / 2;
+            this.y = vec2.y - height / 2;
+            this.slot = vec2;
+        };
+        this.update = function () {
+            let ctx = gameArea.context;
+            ctx.fillStyle = "black";
+            ctx.font = "normal normal bolder 28px verdana";
+            if (this.name == "trebuchet") {
+                ctx.drawImage(this.image, this.x + 25, this.y - 30, this.width, this.height);
+            } else {
+                ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+            }
+        }
+    }
+
+    function Shop(width, height, x, y) {
+        this.width = width;
+        this.height = height;
+        this.img = new Image();
+        this.img.src = "https://i.ibb.co/TvzJxCs/shop.png";
+        this.moneyImg = new Image();
+        this.moneyImg.src = "https://i.ibb.co/1d66jnb/coins.gif";
+        this.attackImg = new Image();
+        this.attackImg.src = "https://i.ibb.co/kXz59r2/battle.gif";
+        this.x = x;
+        this.y = y;
+        this.inventory = [];
+        this.slots = [new Vec2(this.width / 2, 270), new Vec2(this.width / 2, 270 * 2)];
+        this.setItem = function (shopItem, slot) {
+            shopItem.setLocation(slot);
+            this.inventory.push(shopItem);
+        };
+
+        this.update = function () {
+            let ctx = gameArea.context;
+            ctx.fillStyle = "black";
+            ctx.font = "normal normal bolder 28px verdana";
+            ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+            for (slot of this.slots) {
+                ctx.drawImage(this.moneyImg, slot.x - 70, slot.y + 10, this.moneyImg.width / 2, this.moneyImg.height / 2);
+                ctx.drawImage(this.attackImg, slot.x - 60, slot.y + 60, this.attackImg.width / 2, this.attackImg.height / 2);
+
+            }
+            ctx.fillText(castle.health, this.x + this.width / 2 + 10, this.y + 200);
+            ctx.fillText(castle.money, this.x + this.width / 2 + 10, this.y + 110);
+            for (shopItem of this.inventory) {
+                shopItem.update();
+                ctx.fillText(shopItem.price, shopItem.slot.x - 25, shopItem.slot.y + 55);
+                ctx.fillText(shopItem.dmg, shopItem.slot.x - 25, shopItem.slot.y + 115);
+
+            }
+        }
+    }
+
+    function castle(width, height, x, y, castleImage) {
+        this.castleImg = new Image();
+        this.castleImg.src = castleImage;
+        this.pathImg = new Image();
+        this.pathImg.src = "https://i.ibb.co/7NSZmtx/path.png";
+        this.money = 20;
+        this.width = width;
+        this.height = height;
+        this.health = 100;
+        this.x = x;
+        this.y = y;
+        this.update = function () {
+            let ctx = gameArea.context;
+            ctx.drawImage(this.castleImg, this.x, this.y, this.width, this.height);
+            ctx.drawImage(this.pathImg, this.x + this.width, this.y, gameArea.canvas.width - shop.width - castle.width, this.height);
+        };
+        this.hit = function (level) {
+            this.health = this.health <= 0 ? 0 : this.health - level;
+        }
+    }
+
+    function enemySystem(cooldown) {
+        this.cooldown = cooldown;
+        this.activeEnemies = [];
+        this.update = function () {
+            for (enemy of this.activeEnemies) {
+                if (enemy.health <= 0) {
+                    this.destroyEnemy(enemy);
+                    points++;
+                    castle.money++;
+                } else {
+                    enemy.update();
+                    enemy.move();
+                }
+            }
+        };
+        this.destroyEnemy = function (enemy) {
+            points += Math.ceil(enemy.speed);
+            bloodSystem.addItem(new BloodStain(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2));
+            this.activeEnemies.splice(this.activeEnemies.indexOf(enemy), 1);
+        };
+        this.start = function () {
+            this.interval = setInterval(nextFrame, 100);
+        }
+    }
+
+    function nextFrame() {
+        for (let enemy of enemySystem.activeEnemies) {
+            if (!enemy.attack) {
+                let index = enemy.animation.indexOf(enemy.image);
+                enemy.image = index >= enemy.animation.length - 1 ? enemy.animation[2] : enemy.animation[++index];
+            } else {
+                enemy.image = enemy.image === enemy.animation[1] ? enemy.animation[0] : enemy.animation[1];
+            }
+        }
+    }
+
+    function Effects() {
+        this.activeItems = [];
+        this.update = function () {
+            for (let item of this.activeItems) {
+                item.update();
+            }
+        };
+        this.addItem = function (item) {
+            this.activeItems.push(item);
+            animate(item);
+        };
+        this.removeItem = function (item) {
+            this.activeItems.splice(this.activeItems.indexOf(item), 1);
+        };
+    }
+
+    function animate(obj) {
+        obj.isReady = false;
+        let arr = obj.animation;
+        let delay = obj.name == "explosion" ? 50 : 100;
+        let index = 1;
+        let interval = setInterval(function () {
+            if (index < arr.length) {
+                obj.image = obj.animation[index++];
+            } else {
+                //obj.image = obj.animation[0];
+                //setTimeout(function(){
+                clearInterval(interval);
+                effects.removeItem(obj);
+                obj.isReady = true;
+                //    }, 100);
+            }
+        }, 100);
+
+
+    }
+
+    function Spawner() {
+        this.start = function () {
+            this.interval = setInterval(function () {
+                let randY = 50 + Math.random() * (screenHeight - 100);
+                let generatedEnemy = new opponent("normal", 23, 29, "red", screenWidth + 50, randY, 1 + level / 10, 20 + level * 3);
+                enemySystem.activeEnemies.push(generatedEnemy);
+            }, 2000);
+        }
+    }
+
+    function Explosion(x, y, dmg) {
+        this.name = "explosion";
+        this.x = x;
+        this.y = y;
+        this.dmg = dmg;
+        this.animation = getAnimationArray("explosion");
+        this.image = this.animation[0];
+        this.update = function () {
+            let ctx = gameArea.context;
+            ctx.drawImage(this.image, this.x - this.image.width / 2, this.y - this.image.height / 2, this.image.width, this.image.height);
+        }
+    }
+
+    function BloodSystem() {
+        this.image = new Image();
+        this.image.src = "https://i.ibb.co/qsbfbf1/blood.gif";
+        this.activeItems = [];
+        this.addItem = function (bloodStain) {
+            this.activeItems.push(bloodStain);
+        };
+        this.removeItem = function (bloodStain) {
+            this.activeItems.splice(this.activeItems.indexOf(bloodStain), 1);
+        };
+        this.update = function () {
+
+            if (this.activeItems.length > 0) {
+                for (let bloodStain of this.activeItems) {
+                    let ctx = gameArea.context;
+                    ctx.fillStyle = "red";
+                    ctx.drawImage(this.image, bloodStain.x - this.image.width / 2, bloodStain.y - this.image.height / 2, this.image.width, this.image.height);
+                    //ctx.fillRect(bloodStain.x - bloodStain.width / 2, bloodStain.y - bloodStain.height / 2, bloodStain.width, bloodStain.height);
+                }
+            }
+        }
+
+    }
+
+    function BloodStain(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 32;
+        this.height = 32;
+
+    }
+
+    function Bullet(width, height, x, y, speed, target, name, dmg) {
+        this.name = name;
+        this.width = width;
+        this.height = height;
+        this.dmg = dmg;
+        this.image = new Image();
+        this.x = x;
+        this.y = y;
+
+        this.angle = null;
+        this.explode = function () {
+            let explosion = new Explosion(this.x, this.y, this.dmg);
+            effects.addItem(explosion);
+        };
+        this.direction = null;
+        this.speed = speed;
+        this.target = target; //VEC2
+        this.update = function () {
+            if (this.angle == null) {
+                this.angle = Math.atan2(this.target.y - this.y, this.target.x - this.x);
+            }
+            let ctx = gameArea.context;
+            ctx.fillStyle = "black";
+            if (this.name == "archer") {
+                this.image.src = "https://i.ibb.co/GkZn0WS/arrow.gif";
+                ctx.save();
+                let sumX = this.x + this.width / 2;
+                let sumY = this.y + this.height / 2;
+                ctx.translate(sumX, sumY);
+                ctx.rotate(this.angle);
+                ctx.translate(-sumX, -sumY);
+                ctx.drawImage(this.image, this.x, this.y, this.image.width, this.image.height);
+                ctx.restore();
+            } else if (this.name == "trebuchet") {
+                this.image.src = "https://i.ibb.co/2nSCbGS/stone.gif";
+                ctx.drawImage(this.image, this.x, this.y, this.image.width, this.image.height);
+            }
+
+        };
+        this.move = function () {
+            if (this.direction == null) {
+                let diffX = this.x + this.width / 2 - this.target.x;
+                let diffY = this.y + this.height / 2 - this.target.y;
+                let sum = Math.abs(diffX) + Math.abs(diffY);
+                let forceX = diffX / sum * this.speed;
+                let forceY = diffY / sum * this.speed;
+                this.direction = new Vec2(forceX, forceY);
+            }
+            this.x -= this.direction.x;
+            this.y -= this.direction.y;
+        };
+    }
+
+    function checkCollision() {
+        let enemiesToDestroy = [];
+        let bulletsToDestroy = [];
+        for (let bullet of bulletSystem.bullets) {
+            if (bullet.x < 1100 && (bullet.y > -100 || bullet.y < 900)) {
+                if (bullet.name === "archer") {
+                    for (let enemy of enemySystem.activeEnemies) {
+                        if (
+                            bullet.x < enemy.x + enemy.width &&
+                            bullet.x + bullet.width > enemy.x &&
+                            bullet.y < enemy.y + enemy.height &&
+                            bullet.y + bullet.height > enemy.y) {
+                            enemy.hit(bullet.dmg);
+                            bulletsToDestroy.push(bullet);
+                        }
+                    }
+                }
+
+
+                //for catapult
+                else if (bullet.name === "trebuchet") {
+                    if (
+                        bullet.x > bullet.target.x - 5
+                    ) {
+
+                        bullet.explode();
+                        bulletsToDestroy.push(bullet);
+                    }
+                }
+            } else {
+                bulletsToDestroy.push(bullet);
+            }
+        }
+        for (item of effects.activeItems) {
+            for (enemy of enemySystem.activeEnemies) {
+                if (
+                    item.x - item.image.width / 3 < enemy.x + enemy.width &&
+                    item.x + item.image.width / 3 > enemy.x &&
+                    item.y - item.image.height / 3 < enemy.y + enemy.height &&
+                    item.y + item.image.height / 3 > enemy.y
+                ) {
+                    enemy.hit(item.dmg);
+                }
+            }
+        }
+        for (bullet of bulletsToDestroy) {
+            bulletSystem.destroyBullet(bullet);
+        }
+    }
+
+    function opponent(name, width, height, color, x, y, speed, health) {
+        this.isReady = true;
+        this.name = name;
+        this.width = width;
+        this.height = height;
+        this.x = x;
+        this.y = y;
+        this.speed = speed;
+        this.health = health;
+        this.animation = getAnimationArray("enemy");
+        this.image = this.animation[0];
+        this.update = function () {
+            let ctx = gameArea.context;
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        };
+        this.hit = function (hp) {
+            this.health -= hp;
+        };
+        this.attack = false;
+        this.move = function () {
+            if (!this.attack) {
+                if (this.x > castle.x + castle.width) {
+                    this.x -= this.speed;
+                } else {
+                    this.attack = true;
+                }
+            }
+        }
+    }
+
+    function Vec2(x, y) {
+        this.x = x != null ? x : 0;
+        this.y = y != null ? y : 0;
+    }
+
+    function bulletSystem() {
+        this.bullets = [];
+        this.addBullet = function (bullet) {
+            this.bullets.push(bullet);
+        };
+        this.destroyBullet = function (bullet) {
+            this.bullets.splice(this.bullets.indexOf(bullet), 1);
+        };
+        this.update = function () {
+            if (this.bullets.length > 0) {
+                for (bullet of this.bullets) {
+                    bullet.move();
+                    bullet.update();
+                }
+            }
+        }
+    }
+
+    function tick() {
+        time += 1;
+        //document.getElementById("timer").innerHTML = time;
+    }
+
+    var gameArea = {
+        canvas: document.getElementById("displayCanvas"),
+        start: function () {
+            this.canvas.width = screenWidth;
+            this.canvas.height = screenHeight;
+            this.canvas.style = "border-style : solid; margin-top : 5px; margin-bottom : 3px; background-color : white";
+            this.context = this.canvas.getContext("2d");
+            this.interval = setInterval(updateGameArea, 20);
+            this.intervalCollision = setInterval(checkCollision, 20);
+        },
+        clear: function () {
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+    };
+
+    function attack() {
+        for (let enemy of enemySystem.activeEnemies) {
+            if (enemy.attack) {
+                castle.hit(2);
+            }
+        }
+    }
+
+    document.onload = updateSorting();
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <!--<meta name="_csrf" content="${_csrf.token}"/>
+    default header name is X-CSRF-TOKEN
+    <meta name="_csrf_header" content="${_csrf.headerName}"/>-->
+    <!-- Bootstrap CSS -->
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+
+    <title>Type-o-shooter</title>
+</head>
+<body style="background-color: #b28f6b">
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+            <a class="nav-link" th:href="@{'/home'}">LandOfBattle.pl</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{'/home'}">HOME</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{'/highscores'}">HIGHSCORES</a>
+        </li>
+
+        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+            <a class="nav-link" th:href="@{'/admin/users'}">USERS</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+            <a class="nav-link" th:href="@{'/admin/roles'}">ROLES</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+            <a class="nav-link" th:href="@{'/admin/words'}">WORDS</a>
+        </li>
+
+    </ul>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item" id="helloUser-nav" sec:authorize="isAuthenticated()">
+            <a class="nav-link disabled">
+                Hello, <span sec:authentication="name"></span>
+            </a>
+        </li>
+        <li class="nav-item" id="register-nav" sec:authorize="isAnonymous()">
+            <a class="nav-link" th:href="@{'/register'}">SIGN UP</a>
+        </li>
+        <li class="nav-item" id="login-nav" sec:authorize="isAnonymous()">
+            <a class="nav-link" th:href="@{'/signin'}">SIGN IN</a>
+        </li>
+        <li class="nav-item" id="logout-nav2" sec:authorize="isAuthenticated()">
+            <a class="nav-link" method="post" th:href="@{'/logout'}">
+                SIGN OUT
+            </a>
+        </li>
+    </ul>
+</nav>
+<div class="container-fluid">
+    <div class="row content">
+        <nav class="col-sm-3 sidenav border border-dark bg-light shadow-lg" style="height: 100vh">
+            <div class="navbar-nav" style="text-align: center">
+                <br>
+                <h4><strong>TOP 15 - TYPE'O'SHOOTER</strong></h4>
+                <br>
+                <div id="sortSelection" onclick="updateSorting()">
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input checked class="custom-control-input" id="pointsSort" name="sorting" type="radio">
+                        <label class="custom-control-label" for="pointsSort">Sort By Points</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input class="custom-control-input" id="timeSort" name="sorting" type="radio">
+                        <label class="custom-control-label" for="timeSort">Sort By Time</label>
+                    </div>
+                </div>
+                <table class="table" id="shooterScores">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Nickname</th>
+                        <th scope="col">Points</th>
+                        <th scope="col">Time</th>
+                    </tr>
+                    </thead>
+                    <tbody id="highscoreRecords">
+                    </tbody>
+                </table>
+            </div>
+        </nav>
+        <div class="col-sm-9">
+            <br>
+            <div class="row justify-content-md-center" id="lang-select">
+                <div class="jumbotron">
+                    <h2 class="display-4">Instructions:</h2><br>
+                    <p class="lead">Type the words above oncoming enemies to shoot at them.</p>
+                    <p class="lead">No time to loose! Select the
+                        language of your favor and begin the battle.</p>
+                    <div class="form-group">
+                        <label for="sel1">Select language:</label>
+                        <select class="form-control" id="sel1">
+                            <option>EN</option>
+                            <option>PL</option>
+                            <option>DE</option>
+                            <option>NO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-block" onclick="selectLanguage()" type="button">BEGIN
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <div id="playScreen" style="display: none">
+                <div class="container-fluid">
+                    <div class="row justify-content-md-center">
+                        <canvas id="displayCanvas"
+                                style="background-image: url('https://i.ibb.co/jTc5nvX/snow.png')"></canvas>
+                    </div>
+                </div>
+
+            </div>
+            <div class="container" id="shooterInput" style="display: none">
+                <div class="row justify-content-center">
+                    <div>
+                        <div class="input-group container-fluid">
+                            <input autocomplete="off" autofocus class="form-control border border-primary"
+                                   id="userInput" placeholder="Type the words above the enemies to shoot" type="text">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" onclick="shoot()" type="button">SHOOT</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container" id="endResults" style="display: none">
+                <div sec:authorize="isAnonymous()">
+                    <div class="row justify-content-center">
+                        <div data-placement="left" data-toggle="tooltip" id="nickInputGroup"
+                             title="Nickname may consist of 3-20 alphanumeric characters.">
+                            <div class="input-group">
+                                <input autocomplete="off" class="form-control border border-primary" id="nickname"
+                                       name="nickname"
+                                       onemptied="isNicknameAvailable()" oninput="isNicknameAvailable()"
+                                       placeholder="Enter Nickname"
+                                       style="border-width : 5px; border-color : blue" type="text">
+                                <span class="input-group-btn">
+                         <button class="btn btn-primary" onclick="submitScore()" type="button">SUBMIT SCORE</button>
+                    </span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="container" sec:authorize="isAuthenticated()">
+                    <div class="row justify-content-center">
+                        <div>
+                            <button class="btn btn-primary" onclick="submitScore()">SUBMIT SCORE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container" id="registerProposal" style="display: none">
+                <div class="row justify-content-center">
+                    <div class="col-3">
+                        <a class="btn btn-primary btn-lg btn-block" id="gotoregister">MORE GAMES</a>
+                        <br>
+                        <a class="btn btn-secondary btn-lg btn-block" href="/starter">PLAY AGAIN</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<footer class="navbar fixed-bottom justify-content-center navbar-dark bg-dark">
+    <!-- Footer Elements -->
+
+    <!-- Copyright -->
+    <div class="footer-copyright text-center py-3" style="color: bisque">© 2020 Copyright: <a th:href="@{'/author'}">Paweł
+        Szołtysek</a>
+        <a style="margin-left : 10px; margin-right: 10px" th:href="@{'/about'}">About this page</a>
+        <a th:href="@{'/terms'}">Terms and Policy</a>
+        <i class="fab fa-linkedin"></i>
+    </div>
+    <!-- Copyright -->
+
+</footer>
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script crossorigin="anonymous"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<!-- Optional JavaScript -->
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+    var language = "";
+    var username = /*[[${username}]]*/ "na";
+    var game = /*[[${createScoreDTO.game}]]*/ "test";
+    var createScoreUrl = /*[[@{/scores}]]*/ "test";
+    var isNickAvailableUrl = /*[[@{/api/v1/phrase}]]*/ "test";
+    var registerUrl = /*[[@{/register}]]*/ "test";
+    var postScoreUrl = /*[[@{/api/v1/scores}]]*/ "test";
+    var highscoreUrl = /*[[@{/api/v1/highscores/}]]*/ "test";
+    var getWordsUrl = /*[[@{/api/v1/words}]]*/ "test";
+    var bloodSrc = /*[[@{/images/words}]]*/ "test";
+    var scoreID;
+    var points = 0;
+    var screenWidth = 1000;
+    var screenHeight = 700;
+    var bulletSystem;
+    var time = 0;
+    var killedBy = "";
+    var player;
+    var spawner;
+    var enemySystem;
+    var input = document.getElementById("userInput");
+    var timer;
+    var level = 1;
+    var nextLevelCounter = 10;
+    var enemyGeneratorInterval;
+    var lastTarget = new Vec2(screenWidth / 2, 0);
+    var bloodSystem;
+
+
+    /*]]>*/
+
+    function playerAngle() {
+        let m = Math.atan2(lastTarget.y - player.y, lastTarget.x - player.x);
+        return m;
+    }
+
+    function enemyAngle(enemy) {
+        //let m = Math.atan2(player.y - enemy.y, player.x - enemy.y);
+        let m = Math.atan2(enemy.y - player.y, enemy.x - player.x) + 270 * (Math.PI / 180);
+        return m;
+    }
+
+    function selectLanguage() {
+        language = document.getElementById("sel1").value;
+        document.getElementById("lang-select").style.display = "none";
+        document.getElementById("shooterInput").style.display = "inline";
+        document.getElementById("playScreen").style.display = "inline";
+        startGame();
+    }
+
+
+    isNicknameAvailable = async () => {
+        let nickField = document.getElementById("nickname");
+        let phrase = document.getElementById("nickname").value.toLowerCase();
+        const settings = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({"phrase": phrase, "type": "nick"})
+        };
+        if (/\W/i.test(phrase)) {
+            nickField.style.backgroundColor = "#FF837D";
+            document.getElementById("nickInputGroup").title = "Only alphanumeric characters are allowed!";
+            return false;
+        } else {
+            if (/\w{3,20}/i.test(phrase)) {
+                let response = await fetch(isNickAvailableUrl, settings);
+                let result = await response.json().then(d => {
+                    return d;
+                });
+                if (result) {
+                    nickField.style.backgroundColor = "#94ffbc";
+                    document.getElementById("nickInputGroup").title = "OK!";
+                    return true;
+                } else {
+                    nickField.style.backgroundColor = "#FF837D";
+                    document.getElementById("nickInputGroup").title = "This nickname already exists!";
+                    return false;
+                }
+            } else {
+                nickField.style.backgroundColor = "#FF837D";
+                document.getElementById("nickInputGroup").title = "Nickname may consist of 3-20 alphanumeric characters.";
+                return false;
+            }
+        }
+    };
+
+    submitScore = async () => {
+        let nick = username.length < 1 ? document.getElementById("nickname").value.toLowerCase() : username;
+        if (username.length > 0 || await isNicknameAvailable().then(r => {
+            return r;
+        })) {
+            const settings = {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "time": time,
+                    "points": points,
+                    "killedBy": killedBy,
+                    "nickname": nick,
+                    "language": language,
+                    "game": game
+                })
+            };
+            try {
+                let response = await fetch(postScoreUrl, settings);
+                let data = await response.json();
+                document.getElementById("endResults").innerHTML = "";
+                showEndScreen(data);
+                scoreID = data;
+                return data;
+            } catch (e) {
+                console.log(e);
+                return e;
+            }
+        }
+    };
+
+    updateSorting = async () => {
+        let sort = document.getElementById("pointsSort").checked ? "points" : "time";
+        console.log("sort = " + sort);
+        console.log("game = " + game);
+        let amount = "16";
+
+        const settings = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "sort": sort,
+                "amount": amount
+            })
+        };
+        try {
+            let response = await fetch(highscoreUrl + game, settings);
+            let data = await response.json();
+            let index = 1;
+            document.getElementById("highscoreRecords").innerHTML = "";
+            for (let record of data) {
+                let row = '<tr><td>' + index++ + '</td><td>' + record.nickname
+                    + '</td><td>' + record.points + '</td><td>' + record.time + '</td></tr>';
+                document.getElementById("highscoreRecords").innerHTML += row;
+            }
+        } catch (e) {
+            console.log(e);
+            return e;
+        }
+
+    };
+
+    async function showEndScreen(score) {
+        await updateSorting();
+        document.getElementById("endResults").style.display = "none";
+        document.getElementById("registerProposal").style.display = "inline";
+        document.getElementById("gotoregister").setAttribute("href", registerUrl + "/" + score);
+
+    }
+
+
+    function finish() {
+        document.getElementById("endResults").style.display = "inline";
+        clearInterval(timer);
+        clearInterval(enemySystem.animationInterval);
+        clearInterval(enemySystem.interval);
+        setTimeout(function () {
+            clearInterval(gameArea.interval);
+        }, 200);
+        document.getElementById("shooterInput").style.display = "none";
+
+
+    }
+
+    function startGame() {
+        bloodSystem = new BloodSystem();
+        spawner = new Spawner();
+        bulletSystem = new bulletSystem();
+        enemySystem = new EnemySystem(3000);
+        player = new player(64, 64, "red", screenWidth / 2, screenHeight / 2);
+        //let enemies = createEnemies(words, level).then(e => spawner.addAllEnemies(e));
+        //spawner.addAllEnemies(enemies);
+        timer = setInterval(function () {
+            time += 1;
+        }, 1000);
+        gameArea.start();
+        enemySystem.start();
+        enemyGenerator();
+        enemyGeneratorInterval = setInterval(enemyGenerator, 2000);
+
+
+        input.addEventListener("keydown", function (event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                shoot();
+                document.getElementById("userInput").value = "";
+            }
+        });
+
+    }
+
+    async function createEnemies(words, level) {
+        let wordsAsync = await words;
+        let enemyArr = [];
+        for (let word of wordsAsync) {
+            let x, y;
+            let coin = Math.floor(Math.random() * 4);
+            if (coin > 1) {
+                x = -20 + Math.floor(Math.random() * screenWidth + 41);
+                y = coin > 2 ? -20 : screenHeight + 20;
+            } else {
+                x = coin < 1 ? -20 : screenWidth + 20;
+                y = -20 + Math.floor(Math.random() * screenHeight + 41);
+            }
+            let enemy = new opponent(word, 64, 64, "blue", x, y, level * 0.75);
+            enemyArr.push(enemy);
+        }
+        return enemyArr;
+
+    }
+
+    getWords = async () => {
+        const settings = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "language": language,
+                "level": level
+            })
+        };
+        try {
+            let response = await fetch(getWordsUrl, settings);
+            let data = await response.json();
+            return data;
+
+        } catch (e) {
+            console.log(e);
+            return e;
+        }
+
+    };
+
+    enemyGenerator = async () => {
+        if (spawner.enemyPool.length < 2) {
+            getWords().then(w => createEnemies(w, level)).then(e => spawner.addAllEnemies(e));
+        }
+    };
+
+    function animate() {
+        for (let enemy of enemySystem.activeEnemies) {
+            let index = enemySystem.animation.indexOf(enemy.currentFrame) < 0 ? 0 : enemySystem.animation.indexOf(enemy.currentFrame);
+            index = index < 29 ? index + 1 : 0;
+            enemy.currentFrame = enemySystem.animation[index];
+        }
+    }
+
+
+    function updateGameArea() {
+        gameArea.clear();
+        bloodSystem.update();
+        player.update();
+        /*    if(nextLevelCounter <= 0) {
+                level = level <= 10 ? level+1 : 10;
+                nextLevelCounter = 20;
+            }
+            if(spawner.enemyPool.length < 2) {
+                console.log("enemyPool.length < 2");
+                getWords().then(w => spawner.addAllEnemies(w));
+            }*/
+        enemySystem.update();
+        bulletSystem.update();
+        let ctx = gameArea.context;
+        ctx.fillStyle = "black";
+        ctx.font = "20px Arial";
+        ctx.fillText("Time: " + time, 20, 40);
+        ctx.fillText("Score: " + points, 20, 70);
+        ctx.fillText("Level: " + level, 20, 100);
+
+    }
+
+    function shoot() {
+        let phrase = document.getElementById("userInput").value;
+        for (let enemy of enemySystem.activeEnemies) {
+            if (enemy.name.toLowerCase() === phrase.toLowerCase()) {
+                player.shoot(enemy);
+            }
+        }
+    }
+
+    function spawn() {
+        let generatedEnemy = spawner.getEnemy();
+        if (generatedEnemy) {
+            enemySystem.activeEnemies.push(generatedEnemy);
+        }
+    }
+
+    function player(width, height, color, x, y) {
+        this.width = width;
+        this.height = height;
+        this.x = x;// + width / 2;
+        this.y = y;// + height*0.75;
+        this.image = new Image();
+        this.image.src = "https://i.ibb.co/c1TBgGN/player0.gif";
+        this.update = function () {
+            let ctx = gameArea.context;
+            ctx.save();
+            let sumX = this.x;
+            let sumY = this.y;
+            ctx.translate(sumX, sumY);
+            ctx.rotate(playerAngle() + 90 * (Math.PI / 180));
+            ctx.translate(-sumX, -sumY);
+            ctx.drawImage(this.image, this.x - this.width / 2, this.y - this.height * 0.75, this.width, this.height);
+            ctx.restore();
+        };
+        this.shoot = function (enemy) {
+
+            let vector2d = new Vec2((enemy.x + enemy.width / 2), (enemy.y + enemy.height / 2));
+            lastTarget = vector2d;
+            bulletSystem.addBullet(new Bullet(16, 16, this.x, this.y, 30, vector2d, playerAngle()));
+        }
+    }
+
+
+    function EnemySystem(cooldown) {
+        this.cooldown = cooldown;
+        this.activeEnemies = [];
+        this.animation = new Array(30);
+        this.update = function () {
+            for (let enemy of this.activeEnemies) {
+                enemy.update();
+                enemy.move();
+            }
+        };
+        this.destroyEnemy = function (enemy) {
+            points += enemy.name.length;
+            nextLevelCounter -= 1;
+            if (nextLevelCounter <= 0) {
+                levelUp();
+            }
+            bloodSystem.addItem(new BloodStain(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2));
+            this.activeEnemies.splice(this.activeEnemies.indexOf(enemy), 1);
+        };
+        this.start = function () {
+            for (let i = 0; i < this.animation.length; i++) {
+                this.animation[i] = new Image();
+            }
+            this.animation[0].src = "https://i.ibb.co/YR401cm/tile000.gif";
+            this.animation[1].src = "https://i.ibb.co/k4F9Qq8/tile001.gif";
+            this.animation[2].src = "https://i.ibb.co/9vcFq12/tile002.gif";
+            this.animation[3].src = "https://i.ibb.co/m0mW6LM/tile003.gif";
+            this.animation[4].src = "https://i.ibb.co/bWgY3Vz/tile004.gif";
+            this.animation[5].src = "https://i.ibb.co/MG7KFz8/tile005.gif";
+            this.animation[6].src = "https://i.ibb.co/ZYbh44V/tile006.gif";
+            this.animation[7].src = "https://i.ibb.co/G0wskmH/tile007.gif";
+            this.animation[8].src = "https://i.ibb.co/6rzvmFP/tile008.gif";
+            this.animation[9].src = "https://i.ibb.co/QFSYw4Y/tile009.gif";
+            this.animation[10].src = "https://i.ibb.co/61VK0tM/tile010.gif";
+            this.animation[11].src = "https://i.ibb.co/cLg1jHt/tile011.gif";
+            this.animation[12].src = "https://i.ibb.co/sJH5pg1/tile012.gif";
+            this.animation[13].src = "https://i.ibb.co/wBwW2xh/tile013.gif";
+            this.animation[14].src = "https://i.ibb.co/XLd1fw0/tile014.gif";
+            this.animation[15].src = "https://i.ibb.co/0Q0RTNZ/tile015.gif";
+            this.animation[16].src = "https://i.ibb.co/df3VQtS/tile016.gif";
+            this.animation[17].src = "https://i.ibb.co/8swPwtf/tile017.gif";
+            this.animation[18].src = "https://i.ibb.co/vZXkRLf/tile018.gif";
+            this.animation[19].src = "https://i.ibb.co/sV5zthw/tile019.gif";
+            this.animation[20].src = "https://i.ibb.co/yX87M3S/tile020.gif";
+            this.animation[21].src = "https://i.ibb.co/GJZK5PC/tile021.gif";
+            this.animation[22].src = "https://i.ibb.co/hshc7h2/tile022.gif";
+            this.animation[23].src = "https://i.ibb.co/gZbS9KH/tile023.gif";
+            this.animation[24].src = "https://i.ibb.co/pnPHznK/tile024.gif";
+            this.animation[25].src = "https://i.ibb.co/5xKLQH3/tile025.gif";
+            this.animation[26].src = "https://i.ibb.co/RQp1Jmd/tile026.gif";
+            this.animation[27].src = "https://i.ibb.co/mHms3J0/tile027.gif";
+            this.animation[28].src = "https://i.ibb.co/8B60D4K/tile028.gif";
+            this.animation[29].src = "https://i.ibb.co/r6zDXpb/tile029.gif";
+
+            this.animationInterval = setInterval(animate, 30);
+            this.interval = setInterval(spawn, this.cooldown);
+        };
+    }
+
+    function levelUp() {
+        level = level > 10 ? 10 : level + 1;
+        nextLevelCounter = 10 * level;
+        enemySystem.enemyPool = [];
+        enemyGenerator();
+    }
+
+    function Spawner() {
+        this.enemyPool = [];
+        this.addAllEnemies = function (enemyArr) {
+            for (let enemy of enemyArr) {
+                this.enemyPool.push(enemy);
+            }
+        };
+        this.getEnemy = function () {
+            if (this.enemyPool.length > 0) {
+                let spawnedEnemy = this.enemyPool[0];
+                this.enemyPool.splice(this.enemyPool.indexOf(spawnedEnemy), 1);
+                return spawnedEnemy;
+            } else return null;
+        };
+    }
+
+    function Bullet(width, height, x, y, speed, vector2d, angle) {
+        this.width = width;
+        this.height = height;
+        this.x = x;
+        this.y = y;
+        this.angle = angle;
+        this.speed = speed;
+        this.target = vector2d;
+        this.image = new Image();
+        this.image.src = "https://i.ibb.co/GkZn0WS/arrow.gif";
+        this.direction = null;
+        this.update = function () {
+            let ctx = gameArea.context;
+            ctx.save();
+            let sumX = this.x + this.image.width / 2;
+            let sumY = this.y + this.image.height / 2;
+            ctx.translate(sumX, sumY);
+            ctx.rotate(this.angle);
+            ctx.translate(-sumX, -sumY);
+            ctx.drawImage(this.image, this.x, this.y, this.image.width, this.image.height);
+            ctx.restore();
+
+
+        };
+        this.move = function () {
+            if (this.direction == null) {
+                let diffX = this.x + this.width / 2 - this.target.x;
+                let diffY = this.y + this.height / 2 - this.target.y;
+                let sum = Math.abs(diffX) + Math.abs(diffY);
+                let moveX = diffX / sum * this.speed;
+                let moveY = diffY / sum * this.speed;
+                this.direction = new Vec2(moveX, moveY);
+            }
+            this.x -= this.direction.x;
+            this.y -= this.direction.y;
+        };
+    }
+
+    function checkPlayerDead() {
+        for (let enem of enemySystem.activeEnemies) {
+            if (screenWidth / 2 < enem.x + enem.width &&
+                screenWidth / 2 > enem.x &&
+                screenHeight / 2 < enem.y + enem.height &&
+                screenHeight / 2 > enem.y) {
+                killedBy = enem.name;
+                finish();
+            }
+        }
+    }
+
+    function checkCollision() {
+        let enemiesToDestroy = [];
+        let bulletsToDestroy = [];
+        for (let bullet of bulletSystem.bullets) {
+            if (bullet.x + bullet.width == bullet.target.x && bullet.y + bullet.height == bullet.target.y) {
+                bulletsToDestroy.push(bullet);
+            }
+            for (let enemy of enemySystem.activeEnemies) {
+                if (
+                    bullet.x < enemy.x + enemy.width &&
+                    bullet.x + bullet.width > enemy.x &&
+                    bullet.y < enemy.y + enemy.height &&
+                    bullet.y + bullet.height > enemy.y) {
+                    enemiesToDestroy.push(enemy);
+                    bulletsToDestroy.push(bullet);
+                }
+            }
+            for (let enemy of enemiesToDestroy) {
+                enemySystem.destroyEnemy(enemy);
+            }
+            for (let bullet of bulletsToDestroy) {
+                bulletSystem.destroyBullet(bullet);
+            }
+        }
+    }
+
+    function opponent(name, width, height, color, x, y, speed) {
+        this.name = name;
+        this.width = width;
+        this.height = height;
+        this.x = x;
+        this.y = y;
+        this.speed = speed;
+        this.direction = null;
+        this.currentFrame = null;
+        this.angle = null;
+        this.update = function () {
+            if (this.angle == null) {
+                this.angle = enemyAngle(this);
+            }
+            if (this.direction != null) {
+
+                //this.angle = 1 / Math.tan(Math.abs(this.direction.x) / Math.abs(this.direction.y));
+                this.angle = Math.atan2(-this.direction.x, this.direction.y);
+                /*    if(this.direction.x < 0) {
+                        if(this.direction.y < 0) {this.angle = 90*(Math.PI/180) + this.angle}
+                        else this.angle = 270*(Math.PI/180) + this.angle;
+                    }
+                    else {
+                        if(this.direction.y >= 0) { this.angle = 180*(Math.PI/180) - this.angle;}
+                        else this.angle = 270*(Math.PI/180) - this.angle;
+                    }
+                    */
+
+            }
+            if (this.currentFrame == null) {
+                this.currentFrame = new Image();
+                this.currentFrame.src = "https://i.ibb.co/QFSYw4Y/tile009.gif";
+            }
+            let ctx = gameArea.context;
+            ctx.fillStyle = color;
+            ctx.font = "22px Arial";
+            ctx.strokeText(name, this.x + 10, this.y);
+            ctx.save();
+            let sumX = this.x + this.width / 2;
+            let sumY = this.y + this.height / 2;
+            ctx.translate(sumX, sumY);
+            ctx.rotate(this.angle);
+            ctx.translate(-sumX, -sumY);
+            ctx.drawImage(this.currentFrame, this.x, this.y, this.width, this.height);
+            ctx.restore();
+        };
+        this.move = function () {
+            if (this.direction == null) {
+                let diffX = this.x + this.width / 2 - screenWidth / 2;
+                let diffY = this.y + this.height / 2 - screenHeight / 2;
+                let sum = Math.abs(diffX) + Math.abs(diffY);
+                let moveX = diffX / sum * this.speed;
+                let moveY = diffY / sum * this.speed;
+                this.direction = new Vec2(moveX, moveY);
+            }
+            this.x -= this.direction.x;
+            this.y -= this.direction.y;
+        }
+    }
+
+    function Vec2(x, y) {
+        this.x = x != null ? x : 0;
+        this.y = y != null ? y : 0;
+    }
+
+    function BloodSystem() {
+        this.image = new Image();
+        this.image.src = "https://i.ibb.co/qsbfbf1/blood.gif";
+        this.activeItems = [];
+        this.addItem = function (bloodStain) {
+            this.activeItems.push(bloodStain);
+        };
+        this.removeItem = function (bloodStain) {
+            this.activeItems.splice(this.activeItems.indexOf(bloodStain), 1);
+        };
+        this.update = function () {
+
+            if (this.activeItems.length > 0) {
+                for (let bloodStain of this.activeItems) {
+                    let ctx = gameArea.context;
+                    ctx.fillStyle = "red";
+                    ctx.drawImage(this.image, bloodStain.x - this.image.width / 2, bloodStain.y - this.image.height / 2, this.image.width, this.image.height);
+                    //ctx.fillRect(bloodStain.x - bloodStain.width / 2, bloodStain.y - bloodStain.height / 2, bloodStain.width, bloodStain.height);
+                }
+            }
+        }
+
+    }
+
+    function BloodStain(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 32;
+        this.height = 32;
+
+    }
+
+    function bulletSystem() {
+        this.bullets = [];
+        this.addBullet = function (bullet) {
+            this.bullets.push(bullet);
+        };
+        this.destroyBullet = function (bullet) {
+            this.bullets.splice(this.bullets.indexOf(bullet), 1);
+        };
+        this.update = function () {
+            //checkCollision();
+            if (this.bullets.length > 0) {
+                for (bullet of this.bullets) {
+                    bullet.move();
+                    bullet.update();
+                }
+            }
+        }
+    }
+
+    var gameArea = {
+        canvas: document.getElementById("displayCanvas"),
+        start: function () {
+            this.canvas.width = screenWidth;
+            this.canvas.height = screenHeight;
+            this.canvas.style = "border-style : solid; margin-top : 5px; margin-bottom : 3px; background-color : white";
+            this.context = this.canvas.getContext("2d");
+            this.interval = setInterval(updateGameArea, 20);
+            this.intervalCollision = setInterval(checkCollision, 5);
+            this.intervalPlayerCollision = setInterval(checkPlayerDead, 20);
+            this.background = new Image();
+            this.background.src = "https://i.ibb.co/jTc5nvX/snow.png";
+        },
+        clear: function () {
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.context.drawImage(this.background, 0, 0, screenWidth, screenHeight);
+        }
+    };
+
+
+    document.onload = updateSorting();
+
+
+</script>
+
+
+</body>
+</html>
