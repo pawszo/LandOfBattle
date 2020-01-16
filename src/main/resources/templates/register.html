@@ -64,13 +64,14 @@
             <label for="nickInputGroup">Nickname:</label>
             <div class="input-group" id="nickInputGroup">
                 <input class="form-control" id="nickname" name="nickname"
-                       placeholder="at least 3 alphanumeric characters" th:field="*{nickname}" type="text">
+                       onautocomplete="checkNick()" placeholder="at least 3 alphanumeric characters"
+                       th:field="*{nickname}" type="text">
             </div>
 
             <div class="form-group">
                 <label for="email">Email address:</label>
                 <input class="form-control" id="email" name="email" placeholder="eg. user@mail.com" th:field="*{email}"
-                       type="email">
+                       onautocomplete="checkEmail()" type="email">
             </div>
             <div class="form-group">
                 <label for="password1">Password:</label>
@@ -185,11 +186,11 @@
 
     async function checkEmail() {
         let emailField = document.getElementById('email');
-        if (emailPattern.test(emailField.value) && emailField.value.length < 40) {
-            let dbResult = await isUnique(emailField.value, "nick").then(r => {
+        if (emailPattern.test(emailField.value.toLowerCase()) && emailField.value.length < 40) {
+            let dbResult = await isUnique(emailField.value.toLowerCase(), "email").then(r => {
                 return r;
             });
-            if (dbResult == true) {
+            if (dbResult) {
                 emailField.title = "OK!";
                 emailField.style.backgroundColor = "#94ffbc";
                 return true;
@@ -232,7 +233,7 @@
 
     setInterval(function () {
         let nick = document.getElementById("nickname").value.toLowerCase();
-        let email = document.getElementById('email').value;
+        let email = document.getElementById('email').value.toLowerCase();
         let password = document.getElementById('password1').value;
         let passwordConf = document.getElementById('password2').value;
         if (("" + nick + email + password + passwordConf).length > 0) {

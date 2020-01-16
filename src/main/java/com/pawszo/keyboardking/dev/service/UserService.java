@@ -69,7 +69,7 @@ public class UserService {
             return (nickAvailable && scoreNickAvailable);
         } else if (type.equalsIgnoreCase("email")) {
 
-            return userRepository.existsByEmail(phrase);
+            return !userRepository.existsByEmail(phrase);
         } else {
             return false;
         }

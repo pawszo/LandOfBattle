@@ -93,14 +93,14 @@
             <div class="row justify-content-md-center" id="instructions">
                 <div class="jumbotron">
                     <h2 class="display-4">Instructions:</h2><br>
-                    <p class="lead">Defent your castle against the horde. Grab units from the shopping panel and place
+                    <p class="lead">Defend your castle against the horde. Grab units from the shopping panel and place
                         on the castle to buy them.</p>
                     <br>
                     <p class="lead">STEERING: </p>
-                    <p>Buttons 1, 2, 3, 4 - select team saved in the slot.</p>
-                    <p>ALT + Buttons 1, 2, 3, 4 - save currently active team into the slot.</p>
                     <p>Left Mouse Button - unit selection, shooting</p>
                     <p>ALT + Left Mouse Button - grouping units into teams</p>
+                    <p>ALT + Buttons 1, 2, 3, 4 - save currently active team into the slot.</p>
+                    <p>Buttons 1, 2, 3, 4 - select team saved in the slot.</p>
 
                     <hr>
                     <button class="btn btn-primary btn-block" onclick="startGame()" type="button">BEGIN
@@ -123,7 +123,7 @@
                         <p class="lead html-editor-align-center">Time: <span id="endTime"></span></p>
                         <p class="lead html-editor-align-center">Max level: <span id="endLevel"></span></p>
                         <hr>
-                        <button class="btn btn-primary" onclick="submitScore()">SUBMIT SCORE</button>
+                        <button class="btn btn-primary" id="submitBtn" onclick="submitScore()">SUBMIT SCORE</button>
                     </div>
                     <div class="container" id="endScreen" style="display: none">
                         <div>
@@ -273,6 +273,7 @@
     }
 
     submitScore = async () => {
+        document.getElementById("submitBtn").disabled = true;
         const settings = {
             method: 'POST',
             headers: {
@@ -455,7 +456,7 @@
             cursorOnActiveElement = false;
         }
         if (e.offsetX > castle.width + castle.x) {
-            arsenal.cursorImg.src = "images/target.png";
+            //arsenal.cursorImg.src = "images/target.png";
         }
 
         arsenal.aim.x = e.offsetX - arsenal.aim.width / 2;
@@ -525,19 +526,19 @@
             }
 
             let ctx = gameArea.context;
+            for (let tower of this.towers) {
+                tower.update();
+            }
             if (drag) {
                 this.cursorImg.src = "https://i.ibb.co/T0vzmq6/closed-Palm.gif";
             } else if (cursorOnActiveElement) {
                 this.cursorImg.src = "https://i.ibb.co/ch8WnbB/openPalm.gif";
-            } else {
 
+            } else {
                 this.cursorImg.src = "https://i.ibb.co/znfzCDD/target.png";
             }
-            ctx.drawImage(this.cursorImg, this.aim.x, this.aim.y, this.cursorImg.width, this.cursorImg.height);
 
-            for (let tower of this.towers) {
-                tower.update();
-            }
+            ctx.drawImage(this.cursorImg, this.aim.x, this.aim.y, this.cursorImg.width, this.cursorImg.height);
 
         };
         this.shoot = function (x, y) {
