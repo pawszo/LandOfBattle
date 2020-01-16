@@ -189,7 +189,7 @@
             let dbResult = await isUnique(emailField.value, "nick").then(r => {
                 return r;
             });
-            if (dbResult) {
+            if (dbResult == true) {
                 emailField.title = "OK!";
                 emailField.style.backgroundColor = "#94ffbc";
                 return true;
