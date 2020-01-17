@@ -15,6 +15,7 @@ public class TypeOShooterScoreDTO implements ICreateScoreDTO {
     private String time;
     private String points;
     private String killedBy;
+    private String language;
     private String nickname;
     private String game;
 
@@ -24,6 +25,7 @@ public class TypeOShooterScoreDTO implements ICreateScoreDTO {
         Map<String, String> stats = new HashMap<>();
         stats.put("time", time);
         stats.put("points", points);
+        stats.put("language", language);
         stats.put("killedBy", killedBy);
         return stats;
     }

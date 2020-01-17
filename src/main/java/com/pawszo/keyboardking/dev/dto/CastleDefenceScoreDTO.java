@@ -14,7 +14,6 @@ public class CastleDefenceScoreDTO implements ICreateScoreDTO {
 
     private String time;
     private String points;
-    private String language;
     private String maxLevel;
     private String nickname;
     private String game;
@@ -24,7 +23,6 @@ public class CastleDefenceScoreDTO implements ICreateScoreDTO {
         Map<String, String> stats = new HashMap<>();
         stats.put("time", time);
         stats.put("points", points);
-        stats.put("language", language);
         stats.put("maxLevel", maxLevel);
         return stats;
     }
