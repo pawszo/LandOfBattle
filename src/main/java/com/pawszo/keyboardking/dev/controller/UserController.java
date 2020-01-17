@@ -128,7 +128,7 @@ public class UserController {
     }
 
     @PostMapping("/updatepassword")
-    public void updatePassword(@ModelAttribute PasswordUpdateUserDTO passwordUpdateUserDTO, HttpServletRequest request, HttpServletResponse response) {
+    public String updatePassword(@ModelAttribute PasswordUpdateUserDTO passwordUpdateUserDTO, HttpServletRequest request, HttpServletResponse response) {
         userService.updatePassword(passwordUpdateUserDTO);
         RequestDispatcher rd = request.getRequestDispatcher("/logout");
         try {
@@ -136,6 +136,7 @@ public class UserController {
         } catch (IOException | ServletException e) {
             System.out.println(e);
         }
+        return "home";
 
     }
 
