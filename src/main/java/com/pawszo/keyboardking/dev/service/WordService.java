@@ -41,7 +41,7 @@ public class WordService {
         Set<Word> wordSet = wordList
                 .stream()
                 .filter(w -> (!w.equals(" ")))
-                .filter(w -> w.length() > 1)
+                .filter(w -> w.length() > 2)
                 .map(w -> wordMapper.createModel(w, language))
                 .collect(Collectors.toSet());
         for (Word word : wordSet) {
