@@ -11,7 +11,7 @@ public class WordMapper {
         Word word = new Word();
         word.setName(wordString);
         word.setLanguage(language);
-        Integer difficulty = wordString.length() - 1;
+        Integer difficulty = wordString.length() - 2;
         if (difficulty > 10) difficulty = 10;
         word.setDifficulty(difficulty);
         return word;
