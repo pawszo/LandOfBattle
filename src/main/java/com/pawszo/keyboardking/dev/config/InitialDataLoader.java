@@ -131,7 +131,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
         scoreRepository.save(scoreMapper.createModel(new TypeOShooterScoreDTO("200", "120", "worek", "PL", "pawel", "Type'o'Shooter")));
         scoreRepository.save(scoreMapper.createModel(new TypeOShooterScoreDTO("98", "43", "window", "EN", "adam", "Type'o'Shooter")));
         scoreRepository.save(scoreMapper.createModel(new CastleDefenceScoreDTO("98", "43", "4", "adam", "Castle-defence")));
-        scoreRepository.save(scoreMapper.createModel(new CastleDefenceScoreDTO("98", "43", "6", "pawel", "Castle-defence")));
+        scoreRepository.save(scoreMapper.createModel(new CastleDefenceScoreDTO("146", "56", "9", "pawel", "Castle-defence")));
 
 
     }
