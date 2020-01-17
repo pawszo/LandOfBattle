@@ -57,7 +57,8 @@ public class UserService {
         User user = userRepository.getOne(dto.getId());
         user.setState("active");
         user.setPassword(dto.getPasswordConfirmation());
-        return userMapper.mapToDTO(userRepository.save(user));
+        userRepository.save(user);
+        return userMapper.mapToDTO(user);
     }
 
 

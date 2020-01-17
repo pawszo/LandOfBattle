@@ -129,7 +129,7 @@ public class UserController {
 
     @PostMapping("/updatepassword")
     public void updatePassword(@ModelAttribute PasswordUpdateUserDTO passwordUpdateUserDTO, HttpServletRequest request, HttpServletResponse response) {
-        UserDTO userDTO = userService.updatePassword(passwordUpdateUserDTO);
+        userService.updatePassword(passwordUpdateUserDTO);
         RequestDispatcher rd = request.getRequestDispatcher("/logout");
         try {
             rd.forward(request, response);
