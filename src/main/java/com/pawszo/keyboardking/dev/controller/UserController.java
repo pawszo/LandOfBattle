@@ -23,13 +23,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.stream.Collectors;
 
 @Controller
@@ -131,12 +128,6 @@ public class UserController {
     @PostMapping("/updatepassword")
     public String updatePassword(@ModelAttribute PasswordUpdateUserDTO passwordUpdateUserDTO, HttpServletRequest request, HttpServletResponse response) {
         userService.updatePassword(passwordUpdateUserDTO);
-        RequestDispatcher rd = request.getRequestDispatcher("/logout");
-        try {
-            rd.forward(request, response);
-        } catch (IOException | ServletException e) {
-            System.out.println(e);
-        }
         return "home";
 
     }
