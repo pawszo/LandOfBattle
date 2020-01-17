@@ -8,6 +8,7 @@ import com.pawszo.keyboardking.dev.model.User;
 import com.pawszo.keyboardking.dev.repository.ScoreRepository;
 import com.pawszo.keyboardking.dev.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private ScoreRepository scoreRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
    /* @Transactional
     public UserDTO registerUser(Map<String, String> body) throws DataInvalid {
@@ -56,7 +59,7 @@ public class UserService {
     public UserDTO updatePassword(PasswordUpdateUserDTO dto) {
         User user = userRepository.getOne(dto.getId());
         user.setState("active");
-        user.setPassword(dto.getPasswordConfirmation());
+        user.setPassword(passwordEncoder.encode(dto.getPasswordConfirmation()));
         userRepository.save(user);
         return userMapper.mapToDTO(user);
     }

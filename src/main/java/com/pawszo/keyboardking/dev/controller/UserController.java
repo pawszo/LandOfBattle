@@ -148,13 +148,6 @@ public class UserController {
                                      RedirectAttributes redirectAttributes) {
         UserDTO user = userService.registerUser(userDTO);
 
-
-        if (session.getAttribute("hasScore") != null && Boolean.valueOf(session.getAttribute("hasScore").toString())) {
-            Long scoreID = (Long) session.getAttribute("scoreID");
-            scoreService.registerExistingScore(user, scoreID);
-        }
-
-
         if (result.hasErrors()) {
             return new RedirectView("registerFailed");
         }
