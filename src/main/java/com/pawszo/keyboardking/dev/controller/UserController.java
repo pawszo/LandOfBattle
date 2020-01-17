@@ -70,7 +70,7 @@ public class UserController {
     @Transactional
     @GetMapping(value = {"/register/{scoreId}", "/register"})
     public ModelAndView getRegisterForm(
-            @PathVariable(required = false) Long scoreId, HttpSession session, Model model) {
+            @PathVariable(required = false) Long scoreId, Model model) {
 
         ModelAndView mv = new ModelAndView("register");
         CreateUserDTO userDTO = new CreateUserDTO();
@@ -78,10 +78,9 @@ public class UserController {
         if (scoreId != null) {
             ScoreDTO scoreDTO = scoreMapper.mapToDTO(scoreRepository.getOne(scoreId));
             userDTO.setNickname(scoreDTO.getNickname());
-            session.setAttribute("hasScore", true);
-            session.setAttribute("scoreID", scoreId);
+            mv.addObject("hasScore", true);
         } else {
-            session.setAttribute("hasScore", false);
+            mv.addObject("hasScore", false);
         }
         mv.addObject("userDTO", userDTO);
 
