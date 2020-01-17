@@ -81,8 +81,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
         user.setState("active");
         userRepository.save(user);
         createNecessaryWordSets();
-
-
+        createSomeScores();
         alreadySetup = true;
     }
 
