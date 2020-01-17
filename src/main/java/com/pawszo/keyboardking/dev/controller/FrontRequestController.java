@@ -2,6 +2,7 @@ package com.pawszo.keyboardking.dev.controller;
 
 import com.pawszo.keyboardking.dev.comparator.ScorePointsComparator;
 import com.pawszo.keyboardking.dev.comparator.ScoreTimeComparator;
+import com.pawszo.keyboardking.dev.dto.CastleDefenceScoreDTO;
 import com.pawszo.keyboardking.dev.dto.ScoreDTO;
 import com.pawszo.keyboardking.dev.dto.TypeOShooterScoreDTO;
 import com.pawszo.keyboardking.dev.mapper.ScoreMapper;
@@ -36,13 +37,25 @@ public class FrontRequestController {
 
     @PostMapping("/scores")
     public Long addScore(@RequestBody Map<String, String> results, Model model) {
-        ScoreDTO scoreDTO = scoreService.addScore(new TypeOShooterScoreDTO(
-                results.get("time"),
-                results.get("points"),
-                results.get("killedBy"),
-                results.get("nickname"),
-                results.get("game")
-        ));
+        ScoreDTO scoreDTO;
+        if (results.get("game").equalsIgnoreCase("Type'o'Shooter")) {
+            scoreDTO = scoreService.addScore(new TypeOShooterScoreDTO(
+                    results.get("time"),
+                    results.get("points"),
+                    results.get("killedBy"),
+                    results.get("language"),
+                    results.get("nickname"),
+                    results.get("game")
+            ));
+        } else {
+            scoreDTO = scoreService.addScore(new CastleDefenceScoreDTO(
+                    results.get("time"),
+                    results.get("points"),
+                    results.get("maxLevel"),
+                    results.get("nickname"),
+                    results.get("game")
+            ));
+        }
         model.addAttribute("scoreDTO", scoreDTO);
         System.out.println(scoreDTO);
         return scoreDTO.getId();
