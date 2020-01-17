@@ -113,7 +113,8 @@ public class UserController {
     @GetMapping("/changepassword/{userId}")
     public String setNewPassword(Model model, @PathVariable Long userId) {
         User user = userRepository.getOne(userId);
-        if (user == null || user.getState() != "passwordChange") {
+        if (user == null || !user.getState().equalsIgnoreCase("passwordChange")) {
+
             model.addAttribute("messageType", "danger");
             model.addAttribute("message", "Link invalid. Contact website administrator or generate new password change link");
             return "home";
