@@ -14,4 +14,5 @@ public class ScoreDTO {
     public String getNickname() {
         return this.nickname;
     }
+
 }

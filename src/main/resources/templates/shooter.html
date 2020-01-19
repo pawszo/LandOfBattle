@@ -9,6 +9,7 @@
     <!--<meta name="_csrf" content="${_csrf.token}"/>
     default header name is X-CSRF-TOKEN
     <meta name="_csrf_header" content="${_csrf.headerName}"/>-->
+    <link rel="stylesheet" th:href="@{/css/generalstyle.css}" type="text/css"/>
     <!-- Bootstrap CSS -->
     <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
@@ -16,49 +17,8 @@
     <title>Type-o-shooter</title>
 </head>
 <body style="background-color: #b28f6b">
-<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-    <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-            <a class="nav-link" th:href="@{'/home'}">LandOfBattle.pl</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" th:href="@{'/home'}">HOME</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" th:href="@{'/highscores'}">HIGHSCORES</a>
-        </li>
-
-        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
-            <a class="nav-link" th:href="@{'/admin/users'}">USERS</a>
-        </li>
-        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
-            <a class="nav-link" th:href="@{'/admin/roles'}">ROLES</a>
-        </li>
-        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
-            <a class="nav-link" th:href="@{'/admin/words'}">WORDS</a>
-        </li>
-
-    </ul>
-    <ul class="navbar-nav ml-auto">
-        <li class="nav-item" id="helloUser-nav" sec:authorize="isAuthenticated()">
-            <a class="nav-link disabled">
-                Hello, <span sec:authentication="name"></span>
-            </a>
-        </li>
-        <li class="nav-item" id="register-nav" sec:authorize="isAnonymous()">
-            <a class="nav-link" th:href="@{'/register'}">SIGN UP</a>
-        </li>
-        <li class="nav-item" id="login-nav" sec:authorize="isAnonymous()">
-            <a class="nav-link" th:href="@{'/signin'}">SIGN IN</a>
-        </li>
-        <li class="nav-item" id="logout-nav2" sec:authorize="isAuthenticated()">
-            <a class="nav-link" method="post" th:href="@{'/logout'}">
-                SIGN OUT
-            </a>
-        </li>
-    </ul>
-</nav>
-<div class="container-fluid">
+<div th:replace="fragments/navbars :: navbars"></div>
+<div class="container-fluid" style="margin-top: 60px">
     <div class="row content">
         <nav class="col-sm-3 sidenav border border-dark bg-light shadow-lg" style="height: 100vh">
             <div class="navbar-nav" style="text-align: center">
@@ -176,20 +136,6 @@
     </div>
 </div>
 
-
-<footer class="navbar fixed-bottom justify-content-center navbar-dark bg-dark">
-    <!-- Footer Elements -->
-
-    <!-- Copyright -->
-    <div class="footer-copyright text-center py-3" style="color: bisque">© 2020 Copyright: <a th:href="@{'/author'}">Paweł
-        Szołtysek</a>
-        <a style="margin-left : 10px; margin-right: 10px" th:href="@{'/about'}">About this page</a>
-        <a th:href="@{'/terms'}">Terms and Policy</a>
-        <i class="fab fa-linkedin"></i>
-    </div>
-    <!-- Copyright -->
-
-</footer>
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script crossorigin="anonymous"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
@@ -834,7 +780,22 @@
 
 
 </script>
+<script type="text/javascript">
+    $(function () {
+        $("#menu-toggle").click(function (e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
 
+        $(window).resize(function (e) {
+            if ($(window).width() <= 768) {
+                $("#wrapper").removeClass("toggled");
+            } else {
+                $("#wrapper").addClass("toggled");
+            }
+        });
+    });
+</script>
 
 </body>
 </html>

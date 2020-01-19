@@ -31,9 +31,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/starter", "/", "/shooter", "/register/**",
-                        "/highscores", "/register", "/changepassword", "/changepassword/**", "/updatepassword",
-                        "/home", "/home**", "/scores", "/signin", "/author", "/about", "/terms", "/signin?error=true")
+                .antMatchers("/starter**", "/", "/shooter**", "/register/**",
+                        "/highscores**", "/register**", "/changepassword**", "/changepassword/**", "/updatepassword**",
+                        "/home", "/home**", "/scores**", "/signin**", "/author**", "/about**", "/terms**", "/signin**")
                 .permitAll()
                 .and()
                 .csrf().disable()
@@ -58,6 +58,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers("/api/v1/**");
+        web.ignoring().antMatchers("/css/**");
     }
 
     @Bean

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+
+</head>
+<body>
+<div th:fragment="navbars">
+    <nav class="navbar navbar-expand navbar-dark bg-dark fixed-top">
+        <div class="collapse navbar-collapse" id="navbarsExample02">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" th:href="@{'/home'}">LandOfBattle.pl</a>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-md-0"></form>
+        </div>
+        <a class="navbar-brand" href="#menu-toggle" id="menu-toggle"><span class="navbar-toggler-icon"></span></a>
+        <button aria-controls="navbarsExample02" aria-expanded="false" aria-label="Toggle navigation"
+                class="navbar-toggler" data-target="#navbarsExample02" data-toggle="collapse"
+                type="button">
+            <span class="navbar-toggler-icon"></span></button>
+    </nav>
+    <div class="toggled" id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav d-flex align-items-end flex-column" style="height: 100%">
+                <div class="p-2">
+                    <li class="nav-item" id="helloUser-nav" sec:authorize="isAuthenticated()">
+                        <a class="nav-link disabled">
+                            Hello, <span sec:authentication="name"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{'/home'}">HOME</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{'/highscores'}">HIGHSCORES</a>
+                    </li>
+
+                    <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+                        <a class="nav-link" th:href="@{'/admin/users'}">USERS</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+                        <a class="nav-link" th:href="@{'/admin/roles'}">ROLES</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+                        <a class="nav-link" th:href="@{'/admin/words'}">WORDS</a>
+                    </li>
+
+                    <li class="nav-item" id="register-nav" sec:authorize="isAnonymous()">
+                        <a class="nav-link" th:href="@{'/register'}">SIGN UP</a>
+                    </li>
+                    <li class="nav-item" id="login-nav" sec:authorize="isAnonymous()">
+                        <a class="nav-link" th:href="@{'/signin'}">SIGN IN</a>
+                    </li>
+                    <li class="nav-item" id="logout-nav2" sec:authorize="isAuthenticated()">
+                        <a class="nav-link" method="post" th:href="@{'/logout'}">
+                            SIGN OUT
+                        </a>
+                    </li>
+                </div>
+                <div class="mt-auto p-2">
+                    <li>
+                        <a th:href="@{'/terms'}">Terms and Policy</a>
+                    </li>
+                    <li>
+                        <a style="margin-left : 10px; margin-right: 10px" th:href="@{'/about'}">About this page</a>
+                    </li>
+                    <li>
+                        <a th:href="@{'/author'}">© 2020: Paweł
+                            Szołtysek</a>
+                    </li>
+                </div>
+            </ul>
+        </div> <!-- /#sidebar-wrapper -->
+    </div>
+</div>
+</body>
+</html>

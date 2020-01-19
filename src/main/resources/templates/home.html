@@ -7,58 +7,19 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
 
+
     <!-- Bootstrap CSS -->
     <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/generalstyle.css}" type="text/css"/>
 
-    <title>KEYBOARDKING HOME</title>
+    <title>LandOfBattle home</title>
 </head>
 <body style="background-color: #b28f6b">
-<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-    <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-            <a class="nav-link" th:href="@{'/home'}">LandOfBattle.pl</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" th:href="@{'/home'}">HOME</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" th:href="@{'/highscores'}">HIGHSCORES</a>
-        </li>
-
-        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
-            <a class="nav-link" th:href="@{'/admin/users'}">USERS</a>
-        </li>
-        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
-            <a class="nav-link" th:href="@{'/admin/roles'}">ROLES</a>
-        </li>
-        <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
-            <a class="nav-link" th:href="@{'/admin/words'}">WORDS</a>
-        </li>
-
-    </ul>
-    <ul class="navbar-nav ml-auto">
-        <li class="nav-item" id="helloUser-nav" sec:authorize="isAuthenticated()">
-            <a class="nav-link disabled">
-                Hello, <span sec:authentication="name"></span>
-            </a>
-        </li>
-        <li class="nav-item" id="register-nav" sec:authorize="isAnonymous()">
-            <a class="nav-link" th:href="@{'/register'}">SIGN UP</a>
-        </li>
-        <li class="nav-item" id="login-nav" sec:authorize="isAnonymous()">
-            <a class="nav-link" th:href="@{'/signin'}">SIGN IN</a>
-        </li>
-        <li class="nav-item" id="logout-nav2" sec:authorize="isAuthenticated()">
-            <a class="nav-link" method="post" th:href="@{'/logout'}">
-                SIGN OUT
-            </a>
-        </li>
-    </ul>
-</nav>
+<div th:replace="fragments/navbars :: navbars"></div>
 <br>
 
-<div class="container jumbotron col-sm-5" th:switch="${messageType}">
+<div class="container jumbotron col-sm-5" style="margin-top: 60px" th:switch="${messageType}">
     <div class="alert alert-success" role="alert" th:case="'success'" th:text="${message}"></div>
     <div class="alert alert-danger" role="alert" th:case="'danger'" th:text="${message}"></div>
 
@@ -101,28 +62,6 @@
         </a>
     </div>
 </div>
-
-
-<footer class="navbar fixed-bottom justify-content-center navbar-dark bg-dark">
-    <!-- Footer Elements -->
-
-    <!-- Copyright -->
-    <div class="footer-copyright text-center py-3" style="color: bisque">© 2020 Copyright: <a th:href="@{'/author'}">Paweł
-        Szołtysek</a>
-        <a style="margin-left : 10px; margin-right: 10px" th:href="@{'/about'}">About this page</a>
-        <a th:href="@{'/terms'}">Terms and Policy</a>
-        <i class="fab fa-linkedin"></i>
-    </div>
-    <!-- Copyright -->
-
-</footer>
-
-
-<!-- Optional JavaScript -->
-<script type="text/javascript">
-
-</script>
-
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script crossorigin="anonymous"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
@@ -133,5 +72,22 @@
 <script crossorigin="anonymous"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<!-- Optional JavaScript -->
+<script type="text/javascript">
+    $(function () {
+        $("#menu-toggle").click(function (e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+
+        $(window).resize(function (e) {
+            if ($(window).width() <= 768) {
+                $("#wrapper").removeClass("toggled");
+            } else {
+                $("#wrapper").addClass("toggled");
+            }
+        });
+    });
+</script>
 </body>
 </html>
