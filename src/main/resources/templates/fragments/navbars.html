@@ -11,7 +11,7 @@
         <div class="collapse navbar-collapse" id="navbarsExample02">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" th:href="@{'/home'}">LandOfBattle.pl</a>
+                    <a class="nav-link" id="titleNavId" th:href="@{'/home'}">LandOfBattle.pl</a>
                 </li>
             </ul>
             <form class="form-inline my-2 my-md-0"></form>
@@ -33,29 +33,29 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{'/home'}">HOME</a>
+                        <a class="nav-link" id="homeNavId" th:href="@{'/home'}">HOME</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{'/highscores'}">HIGHSCORES</a>
+                        <a class="nav-link" id="highscoresNavId" th:href="@{'/highscores'}">HIGHSCORES</a>
                     </li>
 
-                    <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+                    <li class="nav-item" id="usersNavId" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
                         <a class="nav-link" th:href="@{'/admin/users'}">USERS</a>
                     </li>
-                    <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+                    <li class="nav-item" id="rolesNavId" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
                         <a class="nav-link" th:href="@{'/admin/roles'}">ROLES</a>
                     </li>
-                    <li class="nav-item" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
+                    <li class="nav-item" id="wordsNavId" sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
                         <a class="nav-link" th:href="@{'/admin/words'}">WORDS</a>
                     </li>
 
-                    <li class="nav-item" id="register-nav" sec:authorize="isAnonymous()">
+                    <li class="nav-item" id="register-nav" id="signupNavId" sec:authorize="isAnonymous()">
                         <a class="nav-link" th:href="@{'/register'}">SIGN UP</a>
                     </li>
-                    <li class="nav-item" id="login-nav" sec:authorize="isAnonymous()">
+                    <li class="nav-item" id="login-nav" id="signinNavId" sec:authorize="isAnonymous()">
                         <a class="nav-link" th:href="@{'/signin'}">SIGN IN</a>
                     </li>
-                    <li class="nav-item" id="logout-nav2" sec:authorize="isAuthenticated()">
+                    <li class="nav-item" id="logout-nav2" id="logoutNavId" sec:authorize="isAuthenticated()">
                         <a class="nav-link" method="post" th:href="@{'/logout'}">
                             SIGN OUT
                         </a>
@@ -63,13 +63,14 @@
                 </div>
                 <div class="mt-auto p-2">
                     <li>
-                        <a th:href="@{'/terms'}">Terms and Policy</a>
+                        <a id="termsNavId" th:href="@{'/terms'}">Terms and Policy</a>
                     </li>
                     <li>
-                        <a style="margin-left : 10px; margin-right: 10px" th:href="@{'/about'}">About this page</a>
+                        <a id="aboutNavId" style="margin-left : 10px; margin-right: 10px" th:href="@{'/about'}">About
+                            this page</a>
                     </li>
                     <li>
-                        <a th:href="@{'/author'}">© 2020: Paweł
+                        <a id="authorNavId" th:href="@{'/author'}">© 2020: Paweł
                             Szołtysek</a>
                     </li>
                 </div>

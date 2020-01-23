@@ -20,42 +20,46 @@
 <br>
 
 <div class="container jumbotron col-sm-5" style="margin-top: 60px" th:switch="${messageType}">
-    <div class="alert alert-success" role="alert" th:case="'success'" th:text="${message}"></div>
-    <div class="alert alert-danger" role="alert" th:case="'danger'" th:text="${message}"></div>
+    <div class="alert alert-success" id="successMsg" role="alert" th:case="'success'" th:text="${message}"></div>
+    <div class="alert alert-danger" id="dangerMsg" role="alert" th:case="'danger'" th:text="${message}"></div>
 
 
     <div class="carousel slide" data-ride="carousel" id="carouselExampleControls" style="align-content: center">
         <div class="carousel-inner">
-            <div class="carousel-item">
+            <div class="carousel-item" id="castleCarouselItem">
                 <div class="card" style="height: 70%">
                     <img class="card-img-top" src="https://i.ibb.co/GM6NSx2/castle-Defence-Card.png">
                     <div class="card-body">
                         <h4 class="card-title">Castle defence</h4>
                         <p class="card-text">Defend your castle against the invaders.</p>
-                        <a class="btn btn-primary btn-block" sec:authorize="isAuthenticated()" th:href="@{'/castle'}">PLAY</a>
-                        <a class="btn btn-primary btn-block" sec:authorize="isAnonymous()" th:href="@{'/signin'}">LOG IN
+                        <a class="btn btn-primary btn-block" id="castlePlayButton" sec:authorize="isAuthenticated()"
+                           th:href="@{'/castle'}">PLAY</a>
+                        <a class="btn btn-primary btn-block" id="loginToPlayButton" sec:authorize="isAnonymous()"
+                           th:href="@{'/signin'}">LOG IN
                             TO PLAY</a>
                     </div>
                 </div>
             </div>
-            <div class="carousel-item active">
+            <div class="carousel-item active" id="shooterCarouselItem">
                 <div class="card ali">
                     <img class="card-img-top"
                          src="https://i.ibb.co/Z2XjFhf/shooter-Card.png">
                     <div class="card-body">
                         <h4 class="card-title">Type'o'shooter</h4>
                         <p class="card-text">Shoot enemies by typing their names. Prepare your fingers.</p>
-                        <a class="btn btn-primary btn-block" th:href="@{'/shooter'}">PLAY</a>
+                        <a class="btn btn-primary btn-block" id="shooterPlayButton" th:href="@{'/shooter'}">PLAY</a>
                     </div>
                 </div>
             </div>
         </div>
-        <a class="carousel-control-prev" data-slide="prev" href="#carouselExampleControls" role="button"
+        <a class="carousel-control-prev" data-slide="prev" href="#carouselExampleControls" id="prevCarouselButton"
+           role="button"
            style="filter: invert(100%)">
             <span aria-hidden="true" class="carousel-control-prev-icon"></span>
             <span class="sr-only">Previous</span>
         </a>
-        <a class="carousel-control-next" data-slide="next" href="#carouselExampleControls" role="button"
+        <a class="carousel-control-next" data-slide="next" href="#carouselExampleControls" id="nextCarouselButton"
+           role="button"
            style="filter: invert(100%)">
             <span aria-hidden="true" class="carousel-control-next-icon"></span>
             <span class="sr-only">Next</span>
@@ -81,7 +85,7 @@
         });
 
         $(window).resize(function (e) {
-            if ($(window).width() <= 768) {
+            if ($(window).width() <= 1280) {
                 $("#wrapper").removeClass("toggled");
             } else {
                 $("#wrapper").addClass("toggled");
