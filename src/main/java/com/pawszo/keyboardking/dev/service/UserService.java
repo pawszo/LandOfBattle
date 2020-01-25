@@ -37,11 +37,15 @@ public class UserService {
 
 
     public UserDTO registerUser(CreateUserDTO userDTO) {
-        if (userDTO.getNickname().isEmpty()) {
-            userDTO.setNickname("anonym" + System.currentTimeMillis());
+        if (userRepository.existsByNickname(userDTO.getNickname()) || userRepository.existsByEmail(userDTO.getEmail())) {
+            return null;
+        } else {
+            if (userDTO.getNickname().isEmpty()) {
+                userDTO.setNickname("anonym" + System.currentTimeMillis());
+            }
+            User user = userRepository.save(userMapper.mapToModel(userDTO));
+            return userMapper.mapToDTO(user);
         }
-        User user = userRepository.save(userMapper.mapToModel(userDTO));
-        return userMapper.mapToDTO(user);
     }
 
     public List<UserDTO> getUsersList() {

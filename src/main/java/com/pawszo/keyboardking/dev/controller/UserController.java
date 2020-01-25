@@ -139,7 +139,7 @@ public class UserController {
                                      RedirectAttributes redirectAttributes) {
         UserDTO user = userService.registerUser(userDTO);
 
-        if (result.hasErrors()) {
+        if (result.hasErrors() || user == null) {
             return new RedirectView("registerFailed");
         }
 

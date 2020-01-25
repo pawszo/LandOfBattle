@@ -20,8 +20,11 @@
 <br>
 
 <div class="container jumbotron col-sm-5" style="margin-top: 60px" th:switch="${messageType}">
-    <div class="alert alert-success" id="successMsg" role="alert" th:case="'success'" th:text="${message}"></div>
-    <div class="alert alert-danger" id="dangerMsg" role="alert" th:case="'danger'" th:text="${message}"></div>
+    <div id="msg">
+        <div class="alert alert-success" id="successMsg" role="alert" th:case="'success'" th:id="successMsg"
+             th:text="${message}"></div>
+        <div class="alert alert-danger" id="dangerMsg" role="alert" th:case="'danger'" th:text="${message}"></div>
+    </div>
 
 
     <div class="carousel slide" data-ride="carousel" id="carouselExampleControls" style="align-content: center">
