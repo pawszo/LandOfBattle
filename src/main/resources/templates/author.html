@@ -43,13 +43,14 @@
     <div class="alert alert-warning">
         <h4 class="alert-heading">Currently looking for a full-time position as a full-stack or backend developer with
             JAVA.</h4>
-        <p>Download link for my CV is here: <a download
-                                               href="https://drive.google.com/file/d/1QUEbqWgmHlpLTkZb4nbYfzn8SOUH7CfV/view?usp=sharing"
-                                               sec:authorize="isAuthenticated()">
+        <p id="resumeDownload">Download link for my CV is here: <a download
+                                                                   href="https://drive.google.com/file/d/1QUEbqWgmHlpLTkZb4nbYfzn8SOUH7CfV/view?usp=sharing"
+                                                                   id="resumeDownloadLink"
+                                                                   sec:authorize="isAuthenticated()">
             DOWNLOAD
         </a>
-            <a method="get" sec:authorize="isAnonymous()" th:href="@{/register}">
-                REGISTER (We don't send any newsletter)
+            <a id="signinToDownload" method="get" sec:authorize="isAnonymous()" th:href="@{/signin}">
+                sign in to download
             </a>
         </p>
     </div>
@@ -61,8 +62,11 @@
     <p>This is a fun project made with passion for gaming. How good it is to combine a hobby with education.</p>
     <p>LandOfBattle.pl is a free website with online games. I decided to create it to practise programming and learn
         javascript.
-        As I'm getting better I will be posting better and better content. Feel free to contact me if you have any
-        suggestions or comments.</p>
+        More valuable content coming soon.
+        <wbr>
+        Feel free to contact me if you have any
+        suggestions or comments.
+    </p>
 
     <br><br>
     <h2><strong>Contact</strong></h2>
