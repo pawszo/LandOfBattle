@@ -14,7 +14,10 @@
 <body style="background-color: #b28f6b">
 <div th:replace="fragments/navbars :: navbars"></div>
 <br>
-<div class="container jumbotron col-sm-4">
+<div class="container jumbotron col-sm-4" style="margin-top: 50px">
+    <div th:switch="${error}">
+        <div class="alert alert-danger" id="dangerMsg" role="alert" th:case="true" th:text="${errorMsg}"></div>
+    </div>
     <h1 style="text-align: center"><strong>REGISTER</strong></h1>
     <div class="row justify-content-center">
         <form method="post" th:action="@{/register}" th:object="${userDTO}">

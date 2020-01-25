@@ -66,8 +66,8 @@ public class UserController {
 
     @Transactional
     @GetMapping(value = {"/register/{scoreId}", "/register"})
-    public ModelAndView getRegisterForm(
-            @PathVariable(required = false) Long scoreId, Model model) {
+    public ModelAndView getRegisterForm(@RequestParam(required = false) Boolean error,
+                                        @PathVariable(required = false) Long scoreId, Model model) {
 
         ModelAndView mv = new ModelAndView("register");
         CreateUserDTO userDTO = new CreateUserDTO();
@@ -80,6 +80,12 @@ public class UserController {
             mv.addObject("hasScore", false);
         }
         mv.addObject("userDTO", userDTO);
+        if (error == null || error == false) {
+            mv.addObject("error", false);
+        } else {
+            mv.addObject("error", true);
+            mv.addObject("errorMsg", "There were some errors. Try again.");
+        }
 
 
         return mv;
@@ -106,6 +112,7 @@ public class UserController {
         model.addAttribute("passwordLostDTO", dto);
         return "changepassword";
     }
+
 
     @GetMapping("/changepassword/{userId}")
     public String setNewPassword(Model model, @PathVariable Long userId) {
@@ -140,7 +147,7 @@ public class UserController {
         UserDTO user = userService.registerUser(userDTO);
 
         if (result.hasErrors() || user == null) {
-            return new RedirectView("registerFailed");
+            return new RedirectView("/register?error=true");
         }
 
         redirectAttributes.addAttribute("messageType", "success");
