@@ -49,13 +49,13 @@
                         <a class="nav-link" th:href="@{'/admin/words'}">WORDS</a>
                     </li>
 
-                    <li class="nav-item" id="register-nav" id="signupNavId" sec:authorize="isAnonymous()">
+                    <li class="nav-item" id="signupNavId" sec:authorize="isAnonymous()">
                         <a class="nav-link" th:href="@{'/register'}">SIGN UP</a>
                     </li>
-                    <li class="nav-item" id="login-nav" id="signinNavId" sec:authorize="isAnonymous()">
+                    <li class="nav-item" id="signinNavId" sec:authorize="isAnonymous()">
                         <a class="nav-link" th:href="@{'/signin'}">SIGN IN</a>
                     </li>
-                    <li class="nav-item" id="logout-nav2" id="logoutNavId" sec:authorize="isAuthenticated()">
+                    <li class="nav-item" id="logoutNavId" sec:authorize="isAuthenticated()">
                         <a class="nav-link" method="post" th:href="@{'/logout'}">
                             SIGN OUT
                         </a>
