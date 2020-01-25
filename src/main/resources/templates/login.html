@@ -26,7 +26,7 @@
 
             <div class="form-group">
                 <input autofocus class="form-control" id="nickname" name="username" placeholder="Your username"
-                       onsubmit="setNickCaseAgnostic()" th:field="*{username.toLowerCase()}"
+                       oninput="setNickCaseAgnostic()" th:field="*{username}"
                        type="text">
             </div>
             <div class="form-group">
