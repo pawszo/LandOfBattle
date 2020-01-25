@@ -26,7 +26,7 @@
 
             <div class="form-group">
                 <input autofocus class="form-control" id="nickname" name="username" placeholder="Your username"
-                       th:field="*{username.toLowerCase()}"
+                       onsubmit="setNickCaseAgnostic()" th:field="*{username.toLowerCase()}"
                        type="text">
             </div>
             <div class="form-group">
@@ -65,6 +65,12 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script type="text/javascript">
+
+    function setNickCaseAgnostic() {
+        let nickField = document.getElementById("nickname");
+        nickField.value = nickField.value.toLowerCase();
+    }
+
     $(function () {
         $("#menu-toggle").click(function (e) {
             e.preventDefault();
