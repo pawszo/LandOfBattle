@@ -22,6 +22,7 @@ public class CreateUserDTO {
     @NotBlank(message = "Password must have at least 8 characters including letters and digits.")
     @Size(min = 5)
     private String password;
+    private String passwordConfirmation;
 
     public void setNickname(String nickname) {
         this.nickname = nickname;

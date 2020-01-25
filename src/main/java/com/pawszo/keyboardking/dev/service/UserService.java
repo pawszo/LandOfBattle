@@ -37,7 +37,10 @@ public class UserService {
 
 
     public UserDTO registerUser(CreateUserDTO userDTO) {
-        if (userRepository.existsByNickname(userDTO.getNickname()) || userRepository.existsByEmail(userDTO.getEmail())) {
+        if (userRepository.existsByNickname(userDTO.getNickname()) ||
+                userRepository.existsByEmail(userDTO.getEmail()) ||
+                userDTO.getPassword() != userDTO.getPasswordConfirmation()
+        ) {
             return null;
         } else {
             if (userDTO.getNickname().isEmpty()) {
