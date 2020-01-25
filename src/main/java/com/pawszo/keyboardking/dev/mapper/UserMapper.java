@@ -40,7 +40,7 @@ public class UserMapper {
     @Transactional
     public User mapToModel(CreateUserDTO userDTO) {
         User user = new User();
-        user.setNickname(userDTO.getNickname());
+        user.setNickname(userDTO.getNickname().toLowerCase());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setEmail(userDTO.getEmail());
         user.setState("active");
